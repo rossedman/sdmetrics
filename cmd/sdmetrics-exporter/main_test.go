@@ -80,3 +80,67 @@ func TestOldSystemdExitsCleanly(t *testing.T) {
 		t.Fatalf("exit %d, want 0", code)
 	}
 }
+
+func TestFlagsOverrideConfig(t *testing.T) {
+	cfg := filepath.Join(t.TempDir(), "c.yaml")
+	os.WriteFile(cfg, []byte("interval: 1m\nnaming: raw\n"), 0o644)
+	missing := filepath.Join(t.TempDir(), "missing")
+	var errOut bytes.Buffer
+	code := run([]string{
+		"-config", cfg, "-dir", missing,
+		"-interval", "5s", "-timeout", "1s", "-concurrency", "2", "-naming", "otel",
+		"-include", "io.systemd.*,io.example.*", "-exclude", "io.example.B",
+		"-otlp.endpoint", "127.0.0.1:1", "-otlp.protocol", "grpc", "-otlp.insecure",
+		"-prometheus.listen", "127.0.0.1:0",
+		"-log.format", "json", "-log.level", "debug",
+	}, io.Discard, &errOut)
+	if code != 0 {
+		t.Fatalf("exit %d\n%s", code, errOut.String())
+	}
+	for _, want := range []string{`"interval":"5s"`, `"otlp":true`, `"msg":"no report directory`} {
+		if !strings.Contains(errOut.String(), want) {
+			t.Errorf("log lacks %s:\n%s", want, errOut.String())
+		}
+	}
+}
+
+func TestFailures(t *testing.T) {
+	dir := t.TempDir()
+	for name, args := range map[string][]string{
+		"invalid config":   {"-timeout", "1m", "-interval", "1s"},
+		"nothing to do":    {"-dir", dir},
+		"bad log format":   {"-log.format", "xml"},
+		"bad -once format": {"-once", "-dir", dir, "-format", "yaml"},
+	} {
+		t.Setenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")
+		code := run(args, io.Discard, io.Discard)
+		want := 2
+		if name == "bad -once format" {
+			want = 1
+		}
+		if code != want {
+			t.Errorf("%s: exit %d, want %d", name, code, want)
+		}
+	}
+	// The exporter stops with an error when its endpoint cannot listen.
+	l, _ := net.Listen("tcp", "127.0.0.1:0")
+	defer l.Close()
+	if code := run([]string{"-dir", dir, "-prometheus.listen", l.Addr().String()}, io.Discard, io.Discard); code != 1 {
+		t.Errorf("busy port: exit %d, want 1", code)
+	}
+	if code := run([]string{"-help"}, io.Discard, io.Discard); code != 0 {
+		t.Errorf("-help: exit %d", code)
+	}
+}
+
+func TestVersionString(t *testing.T) {
+	defer func(v, c, d string) { version, commit, date = v, c, d }(version, commit, date)
+	version, commit, date = "1.2.3", "abc1234", "2026-10-16T12:00:00Z"
+	if got := versionString(); got != "1.2.3 (abc1234, 2026-10-16)" {
+		t.Errorf("versionString = %q", got)
+	}
+	version, commit, date = "1.2.3", "", ""
+	if got := versionString(); got != "1.2.3" {
+		t.Errorf("versionString = %q", got)
+	}
+}

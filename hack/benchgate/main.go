@@ -19,28 +19,35 @@ import (
 	"strings"
 )
 
-func main() {
-	threshold := flag.Float64("threshold", 25, "allowed slowdown in percent")
-	flag.Parse()
-	if flag.NArg() != 2 {
-		fmt.Fprintln(os.Stderr, "usage: benchgate [-threshold pct] base.txt head.txt")
-		os.Exit(2)
+func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
+
+func run(args []string, stdout, stderr io.Writer) int {
+	fs := flag.NewFlagSet("benchgate", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	threshold := fs.Float64("threshold", 25, "allowed slowdown in percent")
+	if err := fs.Parse(args); err != nil {
+		return 2
 	}
-	base, err := parseFile(flag.Arg(0))
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(2)
+	if fs.NArg() != 2 {
+		fmt.Fprintln(stderr, "usage: benchgate [-threshold pct] base.txt head.txt")
+		return 2
 	}
-	head, err := parseFile(flag.Arg(1))
+	base, err := parseFile(fs.Arg(0))
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(2)
+		fmt.Fprintln(stderr, err)
+		return 2
+	}
+	head, err := parseFile(fs.Arg(1))
+	if err != nil {
+		fmt.Fprintln(stderr, err)
+		return 2
 	}
 	report, failed := compare(base, head, *threshold)
-	fmt.Print(report)
+	fmt.Fprint(stdout, report)
 	if failed {
-		os.Exit(1)
+		return 1
 	}
+	return 0
 }
 
 func parseFile(name string) (map[string][]float64, error) {

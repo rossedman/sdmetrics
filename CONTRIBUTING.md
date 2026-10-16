@@ -10,6 +10,7 @@ git clone https://github.com/rossedman/sdmetrics && cd sdmetrics
 make test        # unit tests in both modules (no systemd needed)
 make race        # with the race detector
 make lint        # gofmt, go vet, golangci-lint
+make coverage    # fail below 90% statement coverage in either module
 make bench       # scraper against 200 fake sources, provider hot paths
 make docs-serve  # docs at http://127.0.0.1:8000 (make docs-deps first)
 ```
@@ -54,6 +55,8 @@ either.
 - The receiver's golden files live in
   `receiver/systemdreportreceiver/testdata/scraper/`. After a deliberate
   mapping change, run `make golden` and review the diff.
+- Coverage: each module must stay at 90% or more (`make coverage`;
+  example programs are excluded). CI fails below that.
 - Benchmarks: pull requests compare `scrape` and `provider` benchmarks
   against the base branch, and a median slowdown over 25% fails the check.
 - Fuzz targets: `make fuzz FUZZTIME=1m`. Add crashers to `testdata/fuzz`.

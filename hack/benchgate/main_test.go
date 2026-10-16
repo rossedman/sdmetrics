@@ -1,6 +1,9 @@
 package main
 
 import (
+	"io"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -31,5 +34,40 @@ func TestCompare(t *testing.T) {
 	}
 	if _, failed := compare(base, base, 25); failed {
 		t.Error("identical runs failed")
+	}
+}
+
+func TestRun(t *testing.T) {
+	dir := t.TempDir()
+	write := func(name, body string) string {
+		p := filepath.Join(dir, name)
+		if err := os.WriteFile(p, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		return p
+	}
+	base := write("base.txt", baseOut)
+	slow := write("slow.txt", "BenchmarkGaugeSet-4 1 100 ns/op\n")
+	bad := write("bad.txt", "BenchmarkX-4 1 abc ns/op\n")
+	var out strings.Builder
+	for _, tc := range []struct {
+		args []string
+		code int
+	}{
+		{[]string{base, base}, 0},
+		{[]string{base, slow}, 1},
+		{[]string{"-threshold", "500", base, slow}, 0},
+		{[]string{base}, 2},
+		{[]string{"-nope", base, base}, 2},
+		{[]string{filepath.Join(dir, "missing"), base}, 2},
+		{[]string{base, filepath.Join(dir, "missing")}, 2},
+		{[]string{bad, base}, 2},
+	} {
+		if code := run(tc.args, &out, io.Discard); code != tc.code {
+			t.Errorf("run(%v) = %d, want %d", tc.args, code, tc.code)
+		}
+	}
+	if median([]float64{1, 3}) != 2 {
+		t.Error("median of even count")
 	}
 }

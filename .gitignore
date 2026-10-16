@@ -45,3 +45,4 @@ site/
 /examples/*/otel-bridge
 /examples/*/scrape
 /bin/
+receiver-coverage.out

@@ -183,6 +183,14 @@ func TestOTLPEndToEnd(t *testing.T) {
 
 func scrapeProm(t *testing.T, e *Exporter) string {
 	t.Helper()
+	body, _ := scrapePromAddr(t, e)
+	return body
+}
+
+// scrapePromAddr waits for the first scrape and returns /metrics and the
+// endpoint's address.
+func scrapePromAddr(t *testing.T, e *Exporter) (string, string) {
+	t.Helper()
 	var addr string
 	select {
 	case addr = <-e.addr:
@@ -212,7 +220,7 @@ func scrapeProm(t *testing.T, e *Exporter) string {
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("/metrics: %s\n%s", resp.Status, b)
 	}
-	return string(b)
+	return string(b), addr
 }
 
 func TestPrometheusRaw(t *testing.T) {

@@ -117,3 +117,26 @@ func TestDefaultGatherer(t *testing.T) {
 		t.Errorf("go_goroutines missing from %d values", len(got))
 	}
 }
+
+func TestUntypedAndImplicitInfBucket(t *testing.T) {
+	reg := prometheus.NewRegistry()
+	reg.MustRegister(prometheus.NewUntypedFunc(prometheus.UntypedOpts{Name: "legacy", Help: "Untyped"}, func() float64 { return 4 }))
+	// A histogram without an explicit +Inf bucket gets one.
+	h := prometheus.MustNewConstHistogram(prometheus.NewDesc("noinf", "No +Inf", nil, nil), 3, 6, map[float64]uint64{1: 1, 2: 2})
+	reg.MustRegister(constCollector{h})
+	got := strings.Join(roundTrip(t, prombridge.New(reg)), "\n")
+	for _, want := range []string{
+		"io.example.Api.legacy{} gauge 4",
+		"io.example.Api.noinf_bucket{le=+Inf} counter 3",
+		"io.example.Api.noinf_bucket{le=2} counter 2",
+	} {
+		if !strings.Contains(got, want) {
+			t.Errorf("missing %q in\n%s", want, got)
+		}
+	}
+}
+
+type constCollector struct{ m prometheus.Metric }
+
+func (c constCollector) Describe(ch chan<- *prometheus.Desc) { ch <- c.m.Desc() }
+func (c constCollector) Collect(ch chan<- prometheus.Metric) { ch <- c.m }

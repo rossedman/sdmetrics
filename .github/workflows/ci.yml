@@ -31,17 +31,29 @@ jobs:
             go.sum
             receiver/systemdreportreceiver/go.sum
       - name: Unit tests (race)
-        run: go test -race -count=1 -coverprofile=coverage.out ./...
+        run: go test -race -count=1 ./...
       - name: Receiver tests (race)
         working-directory: receiver/systemdreportreceiver
         run: go test -race -count=1 ./...
       - name: Fuzz seeds
         run: go test -run 'Fuzz' ./scrape/ ./internal/names/
+
+  coverage:
+    name: Coverage ≥ 90%
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - run: set -o pipefail; hack/coverage.sh | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v7
-        if: matrix.go == 'stable' && matrix.os == 'ubuntu-24.04'
+        if: always()
         with:
           name: coverage
-          path: coverage.out
+          path: |
+            coverage.out
+            receiver-coverage.out
 
   lint:
     name: Lint

@@ -174,7 +174,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		log.Error("starting", "err", err)
 		return 2
 	}
-	log.Info("starting sdmetrics-exporter", "version", versionString(), "dir", cfg.Dir, "interval", cfg.Interval, "otlp", cfg.OTLPEnabled(), "prometheus", cfg.Prometheus.Listen)
+	log.Info("starting sdmetrics-exporter", "version", versionString(), "dir", cfg.Dir, "interval", cfg.Interval.String(), "otlp", cfg.OTLPEnabled(), "prometheus", cfg.Prometheus.Listen)
 	switch err := e.Run(ctx); {
 	case errors.Is(err, exporter.ErrNoReportDir):
 		// Older systemd: nothing will ever appear. Exit cleanly so the unit

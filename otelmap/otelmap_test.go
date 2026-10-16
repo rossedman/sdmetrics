@@ -2,6 +2,8 @@ package otelmap
 
 import (
 	"fmt"
+	"io/fs"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -242,5 +244,34 @@ func TestToSDK(t *testing.T) {
 		default:
 			t.Errorf("unexpected metric %s", md.Name)
 		}
+	}
+}
+
+func TestUnitProblem(t *testing.T) {
+	for want, src := range map[string]scrape.Source{
+		"scrape_failed":    {Err: fmt.Errorf("dial: refused")},
+		"unknown":          {},
+		"activated":        {UnitErr: scrape.ErrActivated},
+		"no_unit":          {UnitErr: fmt.Errorf("pid 3: %w", scrape.ErrNoUnit)},
+		"proc_unreadable":  {UnitErr: fmt.Errorf("resolving unit: %w", fs.ErrNotExist)},
+		"peer_unavailable": {UnitErr: fmt.Errorf("getsockopt failed")},
+	} {
+		if got := unitProblem(&src); got != want {
+			t.Errorf("unitProblem(%+v) = %q, want %q", src, got, want)
+		}
+	}
+}
+
+func TestHostDefaults(t *testing.T) {
+	m := NewMapper(Options{})
+	host, _ := os.Hostname()
+	if m.opts.HostName != host {
+		t.Errorf("HostName = %q, want %q", m.opts.HostName, host)
+	}
+	if _, err := os.Stat("/etc/machine-id"); err == nil && m.opts.HostID == "" {
+		t.Error("HostID not read from /etc/machine-id")
+	}
+	if (Attribute{Key: "n", Int: 7, IsInt: true}).String() != "7" {
+		t.Error("Attribute.String for integers")
 	}
 }

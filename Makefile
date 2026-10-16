@@ -27,9 +27,12 @@ race: ## Run unit tests with the race detector
 	cd $(RECEIVER) && $(GO) test -race -count=1 ./...
 
 .PHONY: cover
-cover: ## Write a coverage report to coverage.html
-	$(GO) test -coverprofile=coverage.out ./...
+cover: coverage ## Write a coverage report to coverage.html
 	$(GO) tool cover -html=coverage.out -o coverage.html
+
+.PHONY: coverage
+coverage: ## Fail if either module's coverage is below 90% (examples excluded)
+	hack/coverage.sh
 
 .PHONY: integration
 integration: ## Run integration tests against the host's systemd (v260+, as root)

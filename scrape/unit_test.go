@@ -101,3 +101,19 @@ func FuzzDecodeValue(f *testing.F) {
 		}
 	})
 }
+
+func TestValueString(t *testing.T) {
+	for v, want := range map[Value]string{
+		{Kind: KindInt, Int: -2}:     "-2",
+		{Kind: KindFloat, Float: .5}: "0.5",
+		{Kind: KindString, Str: "a"}: `"a"`,
+		{}:                           "<invalid>",
+	} {
+		if got := v.String(); got != want {
+			t.Errorf("%+v.String() = %q, want %q", v, got, want)
+		}
+	}
+	if (Value{Kind: KindFloat, Float: 2.5}).Number() != 2.5 || (Value{Kind: KindInt, Int: 3}).Number() != 3 {
+		t.Error("Number")
+	}
+}
