@@ -267,7 +267,8 @@ func (g Gauge) Value() float64 { return math.Float64frombits(g.s.bits.Load()) }
 
 // Delete stops publishing the series, for example when the object it is
 // about goes away. Using the handle afterwards does not bring it back;
-// call With or On again.
+// call With or On again. On the metric's own handle, Delete resets the
+// value instead; a metric without labels is always published.
 func (g Gauge) Delete() { g.f.remove(g.s) }
 
 // Counter is a monotonically increasing unsigned integer, published as a
