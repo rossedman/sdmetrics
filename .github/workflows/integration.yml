@@ -1,0 +1,70 @@
+name: Integration
+
+# Runs the integration tests against real systemd (v260 or newer), booted
+# as PID 1 in a container per distribution: systemd's own sources, the
+# SDK sample daemon as a service and socket-activated, systemd-report
+# reading it, and the exporter into an in-memory OTLP sink.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "23 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  systemd:
+    name: systemd (${{ matrix.image }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ["fedora:rawhide", "archlinux:latest"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - name: Build test binaries
+        run: |
+          mkdir -p bin
+          CGO_ENABLED=0 go build -o bin/queued ./examples/queued
+          CGO_ENABLED=0 go build -o bin/sdmetrics-exporter ./cmd/sdmetrics-exporter
+          CGO_ENABLED=0 go test -c -tags integration -o bin/integration.test ./integration/
+      - name: Boot systemd container
+        run: |
+          docker build --build-arg IMAGE=${{ matrix.image }} -t sdm-systemd integration/images
+          docker run -d --name sd --privileged --cgroupns=host \
+            -v /sys/fs/cgroup:/sys/fs/cgroup:rw -v "$PWD/bin:/sdm:ro" -v "$PWD/packaging:/packaging:ro" sdm-systemd
+          for i in $(seq 1 60); do
+            state=$(docker exec sd systemctl is-system-running 2>/dev/null || true)
+            case "$state" in running|degraded) break;; esac
+            sleep 1
+          done
+          docker exec sd systemctl --version
+          docker exec sd ls -l /run/systemd/report/
+      - name: Run integration tests
+        run: docker exec -e SDMETRICS_QUEUED=/sdm/queued sd /sdm/integration.test -test.v -test.count=1
+      - name: Run the packaged unit
+        run: |
+          docker exec sd sh -c '
+            set -e
+            install -m755 /sdm/sdmetrics-exporter /usr/bin/
+            install -Dm644 /packaging/config/exporter.yaml /etc/sdmetrics/exporter.yaml
+            install -Dm644 /packaging/systemd/sdmetrics-exporter.service /etc/systemd/system/sdmetrics-exporter.service
+            install -Dm644 /packaging/sysusers.d/sdmetrics.conf /usr/lib/sysusers.d/sdmetrics.conf
+            systemd-sysusers sdmetrics.conf
+            systemctl daemon-reload
+            systemctl start sdmetrics-exporter
+            for i in $(seq 1 30); do curl -fs 127.0.0.1:9558/healthz && break; sleep 1; done
+            curl -fs 127.0.0.1:9558/metrics | grep "^sdmetrics_source_up"
+            curl -fs 127.0.0.1:9558/metrics | grep -q "io_systemd_Manager"
+            systemd-analyze security sdmetrics-exporter | tail -1
+          '
+      - name: Journal on failure
+        if: failure()
+        run: docker exec sd journalctl --no-pager -n 200 || true

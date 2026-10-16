@@ -1,0 +1,102 @@
+# Contributing to sdmetrics
+
+Thanks for helping. This guide covers how the repository is laid out, how
+to run the checks CI runs, and how releases work.
+
+## Quick start
+
+```sh
+git clone https://github.com/rossedman/sdmetrics && cd sdmetrics
+make test        # unit tests in both modules (no systemd needed)
+make race        # with the race detector
+make lint        # gofmt, go vet, golangci-lint
+make bench       # scraper against 200 fake sources, provider hot paths
+make docs-serve  # docs at http://127.0.0.1:8000 (make docs-deps first)
+```
+
+You need Go 1.26 or newer, on Linux.
+
+## Layout
+
+| Path | What lives there |
+| --- | --- |
+| `provider/` | The provider SDK: serve `io.systemd.Metrics` on a report socket |
+| `provider/prombridge/`, `provider/otelbridge/` | Bridges from Prometheus registries and OpenTelemetry SDK readers |
+| `scrape/` | Discovery, concurrent scraping, unit resolution |
+| `otelmap/` | systemd → OpenTelemetry mapping, shared by the exporter and the receiver |
+| `internal/exporter/`, `cmd/sdmetrics-exporter/` | The standalone exporter |
+| `internal/names/` | systemd's naming rules |
+| `receiver/systemdreportreceiver/` | The Collector receiver, **a separate Go module** |
+| `packaging/` | systemd unit, sysusers.d file, default config, package scripts |
+| `examples/` | Runnable examples, including the SDK sample daemon `queued` |
+| `integration/` | Tests against real systemd (`-tags integration`) |
+| `hack/` | The container integration runner and the benchmark gate |
+
+The receiver module uses `replace github.com/rossedman/sdmetrics => ../..`
+during development, so changes to `scrape` or `otelmap` are tested by
+both modules at once. Run `make tidy` after changing dependencies in
+either.
+
+## Tests
+
+- Unit tests must not need systemd. Use a provider or a `varlinktest`
+  fake in a temporary report directory (see `scrape/scrape_test.go`), and
+  a fake `/proc` for unit resolution.
+- Integration tests need root on a systemd v260+ host and only create
+  transient units they remove again:
+
+  ```sh
+  sudo make integration             # on the host
+  make integration-container        # in a container booting systemd (docker, cgroup v2)
+  ```
+
+  CI runs them against `fedora:rawhide` and `archlinux:latest`.
+- The receiver's golden files live in
+  `receiver/systemdreportreceiver/testdata/scraper/`. After a deliberate
+  mapping change, run `make golden` and review the diff.
+- Benchmarks: pull requests compare `scrape` and `provider` benchmarks
+  against the base branch, and a median slowdown over 25% fails the check.
+- Fuzz targets: `make fuzz FUZZTIME=1m`. Add crashers to `testdata/fuzz`.
+
+## Generated code
+
+The receiver's `internal/metadata` package and `generated_*_test.go`
+files come from `metadata.yaml` via the Collector's `mdatagen`. Run
+`make generate` after editing `metadata.yaml`; CI checks they are fresh.
+
+## Releases
+
+Releases are cut with [GoReleaser](https://goreleaser.com) from
+`.goreleaser.yaml`. They ship `sdmetrics-exporter` for Linux amd64 and
+arm64 as archives and as deb and rpm packages that install the unit; the
+Go packages are consumed with `go get`.
+
+- **Every branch push** builds a snapshot, versioned like
+  `0.1.1-snapshot.my-branch.a1b2c3d`, attached to the workflow run as the
+  `sdmetrics-snapshot-<branch>` artifact (kept 14 days).
+- **Every `v*` tag** runs the tests and publishes a GitHub release with a
+  grouped changelog. Tags with a pre-release suffix (`v0.2.0-rc.1`) are
+  marked as pre-releases.
+- **The receiver** is its own module: tag it
+  `receiver/systemdreportreceiver/vX.Y.Z` after the root tag, and point
+  its `require github.com/rossedman/sdmetrics` at that root version.
+
+```sh
+make release-check   # validate .goreleaser.yaml
+make snapshot        # build dist/ locally, exactly as CI does
+git tag -a v0.1.0 -m "v0.1.0" && git push origin v0.1.0
+```
+
+Use conventional prefixes in commit subjects (`feat:`, `fix:`, `perf:`) so
+the release notes group them.
+
+## Commits and pull requests
+
+- Keep pull requests focused.
+- Write commit subjects in the imperative ("scrape: resolve units of
+  activated sockets").
+- Public API, configuration and mapping changes need a CHANGELOG entry
+  and docs.
+
+By contributing you agree that your contributions are licensed under the
+MIT license, and to follow the [code of conduct](CODE_OF_CONDUCT.md).

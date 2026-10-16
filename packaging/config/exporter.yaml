@@ -1,0 +1,29 @@
+# sdmetrics-exporter configuration. Every key is optional; flags override
+# them. Reference: https://rossedman.github.io/sdmetrics/exporter/
+
+interval: 30s          # time between scrapes
+timeout: 2s            # per-source timeout
+# include: ["io.systemd.*"]   # only these sources (path.Match patterns)
+# exclude: []
+naming: raw            # raw (systemd's names) or otel
+
+# Push OTLP. Leave the endpoint empty to disable, or set the standard
+# OTEL_EXPORTER_OTLP_ENDPOINT variable instead.
+otlp:
+  endpoint: ""         # e.g. otel-gateway.internal:4317
+  protocol: grpc       # or http/protobuf
+  insecure: false
+  # headers: {authorization: "Bearer ..."}
+
+# Serve /metrics for Prometheus.
+prometheus:
+  listen: "127.0.0.1:9558"
+
+# Added to every resource.
+resource: {}
+#  deployment.environment: prod
+
+# Socket-activated sources on systemd older than v262 cannot be attributed
+# to a unit automatically; name them here.
+# units:
+#   io.example.Queue: queued.service

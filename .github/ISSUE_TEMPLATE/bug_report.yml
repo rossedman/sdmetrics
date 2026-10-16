@@ -1,0 +1,49 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - provider SDK (provider, prombridge, otelbridge)
+        - scraper (scrape)
+        - OpenTelemetry mapping (otelmap)
+        - sdmetrics-exporter
+        - systemdreport receiver
+        - docs
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproducer
+      description: A minimal program, config or test. `sdmetrics-exporter -once -format json` output helps for scraping issues.
+      render: shell
+  - type: input
+    id: systemd
+    attributes:
+      label: systemd version
+      description: Output of `systemctl --version | head -1`
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: sdmetrics version
+      placeholder: v0.1.0 (sdmetrics-exporter -version)
+    validations:
+      required: true
+  - type: input
+    id: go
+    attributes:
+      label: Go version and platform
+      placeholder: go1.27.2 linux/amd64

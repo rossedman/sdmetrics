@@ -400,7 +400,7 @@ func (m *Mapper) self(res *scrape.Result, now time.Time) Resource {
 		rp := Point{Attributes: attrs, Time: now, IsInt: true, Int: 1}
 		if src.Unit == "" && !overridden {
 			rp.Int = 0
-			rp.Attributes = []Attribute{attrs[0], str(AttrUnitProblem, unitProblem(src.UnitErr))}
+			rp.Attributes = []Attribute{attrs[0], str(AttrUnitProblem, unitProblem(src))}
 		}
 		resolved.Points = append(resolved.Points, rp)
 	}
@@ -433,8 +433,11 @@ func (m *Mapper) self(res *scrape.Result, now time.Time) Resource {
 	return r
 }
 
-func unitProblem(err error) string {
+func unitProblem(src *scrape.Source) string {
+	err := src.UnitErr
 	switch {
+	case err == nil && src.Err != nil:
+		return "scrape_failed"
 	case err == nil:
 		return "unknown"
 	case errors.Is(err, scrape.ErrActivated):

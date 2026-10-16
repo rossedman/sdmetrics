@@ -1,0 +1,128 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test (Go ${{ matrix.go }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # The two newest Go releases, on both supported architectures.
+        go: [stable, oldstable]
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ matrix.go }}
+          cache-dependency-path: |
+            go.sum
+            receiver/systemdreportreceiver/go.sum
+      - name: Unit tests (race)
+        run: go test -race -count=1 -coverprofile=coverage.out ./...
+      - name: Receiver tests (race)
+        working-directory: receiver/systemdreportreceiver
+        run: go test -race -count=1 ./...
+      - name: Fuzz seeds
+        run: go test -run 'Fuzz' ./scrape/ ./internal/names/
+      - uses: actions/upload-artifact@v7
+        if: matrix.go == 'stable' && matrix.os == 'ubuntu-24.04'
+        with:
+          name: coverage
+          path: coverage.out
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.15.0
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.15.0
+          working-directory: receiver/systemdreportreceiver
+          args: --config ../../.golangci.yml
+      - name: go vet (integration build tag)
+        run: go vet -tags integration ./integration/
+
+  generated:
+    name: Generated code is fresh
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - name: Install mdatagen
+        run: |
+          # mdatagen's go.mod has replace directives, so `go install` refuses
+          # it; build it from its module source instead.
+          v=$(go list -m -f '{{.Version}}' -modfile=receiver/systemdreportreceiver/go.mod go.opentelemetry.io/collector/scraper)
+          go mod download -json go.opentelemetry.io/collector/cmd/mdatagen@$v > /tmp/md.json
+          dir=$(jq -r .Dir /tmp/md.json)
+          cp -r "$dir" /tmp/mdatagen && chmod -R u+w /tmp/mdatagen
+          cd /tmp/mdatagen && sed -i '/^replace/d' go.mod && GOFLAGS=-mod=mod go build -o "$HOME/go/bin/mdatagen" .
+      - run: make check-generated MDATAGEN=$HOME/go/bin/mdatagen
+      - name: Modules are tidy
+        run: |
+          make tidy
+          git diff --exit-code -- go.mod go.sum receiver/systemdreportreceiver/go.mod receiver/systemdreportreceiver/go.sum
+
+  benchmark:
+    name: Benchmarks vs base
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - name: Benchmark head
+        run: go test -run '^$' -bench . -benchmem -count 10 ./scrape/ ./provider/ | tee /tmp/head.txt
+      - name: Benchmark base
+        run: |
+          git worktree add /tmp/base "origin/${{ github.base_ref }}"
+          cd /tmp/base
+          if [ -d scrape ]; then
+            go test -run '^$' -bench . -benchmem -count 10 ./scrape/ ./provider/ | tee /tmp/base.txt
+          else
+            : > /tmp/base.txt
+          fi
+      - name: Compare
+        run: |
+          go run golang.org/x/perf/cmd/benchstat@latest /tmp/base.txt /tmp/head.txt | tee -a "$GITHUB_STEP_SUMMARY" || true
+          go run ./hack/benchgate -threshold 25 /tmp/base.txt /tmp/head.txt
+
+  cross:
+    name: Build (linux/amd64, linux/arm64)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - run: |
+          for arch in amd64 arm64; do
+            echo "== linux/$arch"
+            GOOS=linux GOARCH=$arch CGO_ENABLED=0 go build ./...
+            (cd receiver/systemdreportreceiver && GOOS=linux GOARCH=$arch CGO_ENABLED=0 go build ./...)
+          done

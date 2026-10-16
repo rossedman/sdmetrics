@@ -137,9 +137,12 @@ func (e *Exporter) Run(ctx context.Context) error {
 		srvErr = make(chan error, 1)
 		go func() { srvErr <- srv.Serve(l) }()
 		defer func() {
-			sctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			// Scrapes are short: give them a moment, then close the rest.
+			sctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 			defer cancel()
-			srv.Shutdown(sctx)
+			if srv.Shutdown(sctx) != nil {
+				srv.Close()
+			}
 		}()
 		e.addr <- l.Addr().String()
 		e.log.Info("serving Prometheus metrics", "addr", l.Addr().String(), "path", e.cfg.Prometheus.Path)

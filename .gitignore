@@ -44,3 +44,4 @@ site/
 /examples/*/prometheus-bridge
 /examples/*/otel-bridge
 /examples/*/scrape
+/bin/

@@ -1,0 +1,60 @@
+# sdmetrics-exporter: systemd report metrics (systemd v260+) to OpenTelemetry.
+#
+# The service runs as a dynamic user that sees /run only through the report
+# directory, the manager's Varlink socket (to name socket-activated
+# sources) and the resolver's files (for the OTLP endpoint's name). On
+# hosts without /run/systemd/report it logs once and exits cleanly.
+#
+# Customize with `systemctl edit sdmetrics-exporter`, for example to read
+# systemd-journald's source (group systemd-journal, mode 0660):
+#
+#   [Service]
+#   SupplementaryGroups=systemd-journal
+
+[Unit]
+Description=sdmetrics exporter (systemd report metrics to OpenTelemetry)
+Documentation=https://rossedman.github.io/sdmetrics/exporter/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/sdmetrics-exporter -config /etc/sdmetrics/exporter.yaml
+Restart=on-failure
+RestartSec=5s
+
+DynamicUser=yes
+# Providers can restrict their sockets to this group (sysusers.d/sdmetrics.conf).
+SupplementaryGroups=sdmetrics
+
+# A read-only view of the system.
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+TemporaryFileSystem=/run:ro
+BindReadOnlyPaths=-/run/systemd/report -/run/systemd/io.systemd.Manager -/run/systemd/resolve
+# /proc/<pid>/cgroup of other users' processes resolves each source's unit,
+# so /proc stays visible (ProtectProc=default).
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+NoNewPrivileges=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

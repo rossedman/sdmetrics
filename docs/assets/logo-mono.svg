@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-label="sdmetrics">
+  <title>sdmetrics</title>
+  <g stroke="currentColor" stroke-linecap="round">
+    <path stroke-width="12" d="M22.4 88A48 48 0 1 1 105.6 88"/>
+    <path stroke-width="9" d="M64 70L89 45"/>
+  </g>
+  <circle cx="64" cy="70" r="11" fill="currentColor"/>
+</svg>
