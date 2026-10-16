@@ -25,6 +25,10 @@ type Config struct {
 	Exclude []string `mapstructure:"exclude"`
 	// SourceTimeout bounds the time spent on each source (default 2s).
 	SourceTimeout time.Duration `mapstructure:"source_timeout"`
+	// ManagerSocket is the service manager's Varlink socket, asked which
+	// unit owns a socket-activated source (default
+	// /run/systemd/io.systemd.Manager).
+	ManagerSocket string `mapstructure:"manager_socket"`
 	// Concurrency is how many sources are scraped at once (default 8).
 	Concurrency int `mapstructure:"concurrency"`
 	// Naming is "raw" (systemd's family names, the default) or "otel".

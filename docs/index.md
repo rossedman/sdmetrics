@@ -188,7 +188,7 @@ host, systemd's own included, as OTLP or Prometheus, each attributed to the unit
     One resource per source, `service.name` from the unit, counters with
     proper start times, and an optional OTel naming mode.
 
-    [:octicons-arrow-right-24: Mapping](reference/otel-mapping.md)
+    [:octicons-arrow-right-24: Mapping](reference/mapping.md)
 
 </div>
 

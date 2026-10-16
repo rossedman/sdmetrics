@@ -49,7 +49,7 @@ func New(ctx context.Context, cfg Config, log *slog.Logger, version string) (*Ex
 	if err := cfg.Validate(); err != nil {
 		return nil, err
 	}
-	so := cfg.scrapeOptions()
+	so := cfg.ScrapeOptions()
 	so.Logger = log
 	e := &Exporter{
 		cfg:     cfg,

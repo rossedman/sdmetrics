@@ -155,8 +155,9 @@ func run(args []string, stdout, stderr io.Writer) int {
 	defer stop()
 
 	if *once {
-		s := scrape.New(scrape.Options{Dir: cfg.Dir, Include: cfg.Include, Exclude: cfg.Exclude,
-			Concurrency: cfg.Concurrency, Timeout: cfg.Timeout, Logger: log})
+		so := cfg.ScrapeOptions()
+		so.Logger = log
+		s := scrape.New(so)
 		res, err := s.Scrape(ctx)
 		if err != nil {
 			log.Error("scrape failed", "err", err)

@@ -32,7 +32,7 @@ resourceMetrics:
           - description: Time spent scraping all sources
             gauge:
               dataPoints:
-                - asDouble: 0.001086249
+                - asDouble: 0.001124665
                   timeUnixNano: "1000000"
             name: sdmetrics.scrape.duration
             unit: s
@@ -46,11 +46,10 @@ resourceMetrics:
                         stringValue: io.example.Queue
                   timeUnixNano: "1000000"
             name: sdmetrics.source.up
-            unit: "1"
           - description: Time spent scraping the source
             gauge:
               dataPoints:
-                - asDouble: 0.000939484
+                - asDouble: 0.000946196
                   attributes:
                     - key: systemd.report.source
                       value:
@@ -68,7 +67,6 @@ resourceMetrics:
                         stringValue: io.example.Queue
                   timeUnixNano: "1000000"
             name: sdmetrics.source.unit.resolved
-            unit: "1"
         scope:
           name: github.com/rossedman/sdmetrics/receiver/systemdreportreceiver
           version: test
@@ -85,7 +83,7 @@ resourceMetrics:
             stringValue: host1
         - key: process.pid
           value:
-            intValue: "29146"
+            intValue: "12982"
         - key: service.name
           value:
             stringValue: queued

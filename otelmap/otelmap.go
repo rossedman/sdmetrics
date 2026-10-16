@@ -383,9 +383,9 @@ func (m *Mapper) start(src *scrape.Source, family string, p Point, now time.Time
 func (m *Mapper) self(res *scrape.Result, now time.Time) Resource {
 	r := Resource{Attributes: append(m.hostAttributes(), str(AttrServiceName, "sdmetrics"))}
 	var failed int64
-	up := Metric{Name: selfMetricPrefix + "source.up", Description: "1 if the source was scraped without error, else 0", Unit: "1", Kind: Gauge}
+	up := Metric{Name: selfMetricPrefix + "source.up", Description: "1 if the source was scraped without error, else 0", Kind: Gauge}
 	dur := Metric{Name: selfMetricPrefix + "source.scrape.duration", Description: "Time spent scraping the source", Unit: "s", Kind: Gauge}
-	resolved := Metric{Name: selfMetricPrefix + "source.unit.resolved", Description: "1 if the source's unit was resolved, else 0 (reason says why)", Unit: "1", Kind: Gauge}
+	resolved := Metric{Name: selfMetricPrefix + "source.unit.resolved", Description: "1 if the source's unit was resolved, else 0 (reason says why)", Kind: Gauge}
 	for i := range res.Sources {
 		src := &res.Sources[i]
 		attrs := []Attribute{str(AttrSource, src.Name)}

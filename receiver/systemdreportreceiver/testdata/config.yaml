@@ -6,6 +6,7 @@ systemdreport/custom:
   exclude: ["io.systemd.Network"]
   source_timeout: 1s
   concurrency: 4
+  manager_socket: /run/user/1000/systemd/io.systemd.Manager
   naming: otel
   resource:
     deployment.environment: prod

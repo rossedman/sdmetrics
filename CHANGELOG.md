@@ -30,12 +30,16 @@ versioned with the root module and tagged `receiver/systemdreportreceiver/vX.Y.Z
   counter start times and resets, raw or OTel-style naming, and
   self-metrics.
 - `sdmetrics-exporter`: OTLP push over gRPC or HTTP, Prometheus
-  `/metrics`, `-once` for inspection, YAML configuration; exits cleanly on
-  hosts older than systemd v260.
+  `/metrics`, `-once` for inspection, YAML configuration (including
+  `manager_socket` for per-user scraping); exits cleanly on hosts older
+  than systemd v260.
 - `systemdreportreceiver`: OpenTelemetry Collector receiver built with
   `mdatagen` and `scraperhelper` (alpha).
 - Hardened `sdmetrics-exporter.service`, sysusers.d file and default
   configuration, shipped in deb and rpm packages.
+- A documentation site (MkDocs) with guides, the exporter and receiver
+  configuration reference and the OpenTelemetry mapping.
 - Integration tests against systemd booted as PID 1 (Fedora rawhide, Arch
-  Linux), a benchmark gate against the base branch, and examples: the
+  Linux), a benchmark gate against the base branch, a 90% coverage minimum,
+  and examples: the
   `queued` sample daemon, both bridges and the scraper.

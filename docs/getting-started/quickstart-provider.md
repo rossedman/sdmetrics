@@ -88,15 +88,15 @@ go run github.com/rossedman/sdmetrics/cmd/sdmetrics-exporter@latest -once -dir /
 ```
 
 ```text title="Output (illustrative)"
-SOURCE            UNIT               FAMILY                          TYPE     OBJECT  FIELDS     VALUE
-io.example.Queue  user@1000.service  io.example.Queue.Depth          gauge    -       -          17
-io.example.Queue  user@1000.service  io.example.Queue.JobsProcessed  counter  -       result=ok  17
+SOURCE            UNIT             FAMILY                          TYPE     OBJECT  FIELDS     VALUE
+io.example.Queue  session-2.scope  io.example.Queue.Depth          gauge    -       -          17
+io.example.Queue  session-2.scope  io.example.Queue.JobsProcessed  counter  -       result=ok  17
 
 1 sources, 2 values in 1.2ms.
 ```
 
-The `UNIT` column is the unit your shell runs in: the scraper resolved it from
-the socket's peer credentials. Run the program as a service and it shows that
+The `UNIT` column is the unit your shell runs in, here a login session's
+scope: the scraper resolved it from the socket's peer credentials. Run the program as a service and it shows that
 service instead.
 
 ## 4. Read it with systemd

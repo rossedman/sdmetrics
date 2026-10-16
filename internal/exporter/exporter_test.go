@@ -309,6 +309,7 @@ resource:
   deployment.environment: prod
 units:
   io.example.Queue: queue.service
+manager_socket: /run/user/1000/systemd/io.systemd.Manager
 `), 0o644)
 	cfg, err := Load(file)
 	if err != nil {
@@ -319,7 +320,8 @@ units:
 	}
 	if cfg.Interval != 15*time.Second || cfg.Timeout != time.Second || len(cfg.Include) != 2 || cfg.OTLP.Endpoint != "otel-gateway.internal:4317" ||
 		cfg.OTLP.Headers["authorization"] != "Bearer x" || cfg.Prometheus.Listen != ":9558" || cfg.Prometheus.Path != "/metrics" ||
-		cfg.Resource["deployment.environment"] != "prod" || cfg.Units["io.example.Queue"] != "queue.service" || cfg.Concurrency != 8 {
+		cfg.Resource["deployment.environment"] != "prod" || cfg.Units["io.example.Queue"] != "queue.service" || cfg.Concurrency != 8 ||
+		cfg.ScrapeOptions().ManagerSocket != "/run/user/1000/systemd/io.systemd.Manager" {
 		t.Errorf("config = %+v", cfg)
 	}
 

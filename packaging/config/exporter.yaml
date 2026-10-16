@@ -6,6 +6,7 @@ timeout: 2s            # per-source timeout
 # include: ["io.systemd.*"]   # only these sources (path.Match patterns)
 # exclude: []
 naming: raw            # raw (systemd's names) or otel
+# manager_socket: /run/systemd/io.systemd.Manager  # names socket-activated sources
 
 # Push OTLP. Leave the endpoint empty to disable, or set the standard
 # OTEL_EXPORTER_OTLP_ENDPOINT variable instead.

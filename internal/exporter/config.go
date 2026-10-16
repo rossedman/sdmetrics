@@ -34,6 +34,11 @@ type Config struct {
 	Exclude []string `yaml:"exclude"`
 	// Naming is "raw" (systemd's family names) or "otel".
 	Naming string `yaml:"naming"`
+	// ManagerSocket is the service manager's Varlink socket, asked which
+	// unit owns a socket-activated source (default
+	// /run/systemd/io.systemd.Manager; per-user managers listen on
+	// $XDG_RUNTIME_DIR/systemd/io.systemd.Manager).
+	ManagerSocket string `yaml:"manager_socket"`
 
 	OTLP       OTLPConfig       `yaml:"otlp"`
 	Prometheus PrometheusConfig `yaml:"prometheus"`
@@ -157,13 +162,15 @@ func (c *Config) OTLPEnabled() bool {
 	return c.OTLP.Endpoint != "" || os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT") != "" || os.Getenv("OTEL_EXPORTER_OTLP_METRICS_ENDPOINT") != ""
 }
 
-func (c *Config) scrapeOptions() scrape.Options {
+// ScrapeOptions returns the scraper options the configuration describes.
+func (c *Config) ScrapeOptions() scrape.Options {
 	return scrape.Options{
-		Dir:         c.Dir,
-		Include:     c.Include,
-		Exclude:     c.Exclude,
-		Concurrency: c.Concurrency,
-		Timeout:     c.Timeout,
+		Dir:           c.Dir,
+		Include:       c.Include,
+		Exclude:       c.Exclude,
+		Concurrency:   c.Concurrency,
+		Timeout:       c.Timeout,
+		ManagerSocket: c.ManagerSocket,
 	}
 }
 

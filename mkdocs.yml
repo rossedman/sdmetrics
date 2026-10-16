@@ -121,6 +121,16 @@ markdown_extensions:
 
 validation:
   nav:
+    omitted_files: warn
+    not_found: warn
+    absolute_links: warn
+  links:
+    not_found: warn
+    anchors: warn
+    absolute_links: warn
+    unrecognized_links: warn
+
+nav:
   - Home: index.md
   - Getting started:
       - Installation: getting-started/installation.md
@@ -149,7 +159,7 @@ validation:
       - Building a collector with ocb: receiver/ocb.md
   - Reference:
       - reference/index.md
-      - OpenTelemetry mapping: reference/otel-mapping.md
+      - OpenTelemetry mapping: reference/mapping.md
       - systemd naming rules: reference/naming.md
       - Self-metrics: reference/self-metrics.md
       - Compatibility: reference/compatibility.md

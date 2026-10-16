@@ -172,4 +172,4 @@ flowchart LR
 | Object | `object` | `On`, `Metric.Object` | `systemd.object` |
 
 Next: the [Provider SDK](../guides/provider.md), or the full
-[OpenTelemetry mapping](../reference/otel-mapping.md).
+[OpenTelemetry mapping](../reference/mapping.md).

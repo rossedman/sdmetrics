@@ -43,7 +43,7 @@ letters, digits and single underscores. Use PascalCase, as systemd does.
 
     The v260 wire format has no unit field. Name metrics with their unit, such
     as `RequestLatencySeconds` or `CacheBytes`. The exporter's
-    [`naming: otel`](../reference/otel-mapping.md#naming-modes) mode turns
+    [`naming: otel`](../reference/mapping.md#naming-modes) mode turns
     that suffix back into an OpenTelemetry unit
     (`io.example.queue.request_latency`, unit `s`).
 

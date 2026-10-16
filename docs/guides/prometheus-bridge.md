@@ -78,7 +78,7 @@ digits and single underscores) are kept as they are. Others are sanitized:
 
 Prometheus label names keep their spelling as fields.
 
-With the exporter's [`naming: otel`](../reference/otel-mapping.md#naming-modes),
+With the exporter's [`naming: otel`](../reference/mapping.md#naming-modes),
 `io.example.Api.http_requests_total` is exported as
 `io.example.api.http_requests` and `..._duration_seconds_sum` as
 `io.example.api.http_request_duration_seconds_sum`. The unit suffix is only

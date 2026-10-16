@@ -83,11 +83,17 @@ it elsewhere:
 otelbridge.Name("http.server.request.duration", "s") // "http_server_request_duration_seconds"
 ```
 
-With the exporter's [`naming: otel`](../reference/otel-mapping.md#naming-modes)
+With the exporter's [`naming: otel`](../reference/mapping.md#naming-modes)
 the unit suffix moves back into the unit field on the way out:
 `io.example.Api.http_server_request_duration_seconds` is exported as
 `io.example.api.http_server_request_duration` with unit `s`. The round trip
 recovers the unit; the original dots in the instrument name become
 underscores.
+
+!!! note "Histograms on the Prometheus endpoint"
+
+    Bridged histogram families are plain counters to systemd. The exporter's
+    Prometheus endpoint keeps their `_bucket`, `_sum` and `_count` names in
+    both naming modes, so `histogram_quantile` works on the `_bucket` series.
 
 Next: [Scraping from Go](scraping.md).

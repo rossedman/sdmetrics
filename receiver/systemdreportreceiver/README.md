@@ -54,6 +54,7 @@ service:
 | `exclude` | none | Skip sources matching these patterns. |
 | `source_timeout` | `2s` | Time allowed per source. |
 | `concurrency` | `8` | Sources scraped at once. |
+| `manager_socket` | `/run/systemd/io.systemd.Manager` | Service manager socket, asked which unit owns a socket-activated source. Use `$XDG_RUNTIME_DIR/systemd/io.systemd.Manager` with a per-user `directory`. |
 | `naming` | `raw` | `raw` keeps systemd's family names; `otel` converts them to OpenTelemetry style. |
 | `resource` | none | Attributes added to every source's resource. |
 | `service_names` | none | `service.name` per source name. |

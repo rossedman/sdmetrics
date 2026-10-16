@@ -133,6 +133,7 @@ not for socket-activated sources, where it would be PID 1.
 From Go, `scrape.Options{NoActivationLookup: true}` skips the manager query;
 activated sources then stay unresolved. `ManagerSocket` points the lookup at
 a per-user manager (`$XDG_RUNTIME_DIR/systemd/io.systemd.Manager`) when
-scraping a user's report directory.
+scraping a user's report directory; the exporter's `manager_socket` and the
+receiver's `manager_socket` settings do the same.
 
 Next: [Testing](testing.md).

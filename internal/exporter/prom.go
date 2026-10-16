@@ -143,7 +143,10 @@ func (c *promCollector) promName(m otelmap.Metric) string {
 		if s := promUnits[m.Unit]; s != "" && !strings.HasSuffix(name, "_"+s) {
 			name += "_" + s
 		}
-		if m.Kind == otelmap.Sum && m.Monotonic && !strings.HasSuffix(name, "_total") {
+		// Bucket, sum and count series bridged from histograms keep their
+		// Prometheus names.
+		histogramPart := strings.HasSuffix(name, "_bucket") || strings.HasSuffix(name, "_sum") || strings.HasSuffix(name, "_count")
+		if m.Kind == otelmap.Sum && m.Monotonic && !histogramPart && !strings.HasSuffix(name, "_total") {
 			name += "_total"
 		}
 	}

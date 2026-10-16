@@ -31,6 +31,7 @@ func TestLoadConfig(t *testing.T) {
 			c.Exclude = []string{"io.systemd.Network"}
 			c.SourceTimeout = time.Second
 			c.Concurrency = 4
+			c.ManagerSocket = "/run/user/1000/systemd/io.systemd.Manager"
 			c.Naming = "otel"
 			c.Resource = map[string]string{"deployment.environment": "prod"}
 			c.ServiceNames = map[string]string{"io.example.Queue": "queue"}

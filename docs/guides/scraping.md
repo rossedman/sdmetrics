@@ -199,7 +199,7 @@ func main() {
     the instrumentation scope version.
 
 This is, in essence, what `sdmetrics-exporter` does. The mapping itself is
-specified in [OpenTelemetry mapping](../reference/otel-mapping.md).
+specified in [OpenTelemetry mapping](../reference/mapping.md).
 
 ## A complete example
 

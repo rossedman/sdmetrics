@@ -17,6 +17,8 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	colmetrics "go.opentelemetry.io/proto/otlp/collector/metrics/v1"
 	"google.golang.org/protobuf/proto"
+
+	"github.com/rossedman/sdmetrics/otelmap"
 )
 
 func TestOTLPHTTPEndToEnd(t *testing.T) {
@@ -235,5 +237,24 @@ func TestHealthzBeforeFirstScrape(t *testing.T) {
 	resp.Body.Close() // no batch yet: only runtime metrics, no error
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("/metrics before a scrape = %d", resp.StatusCode)
+	}
+}
+
+func TestPromNamesInOTelMode(t *testing.T) {
+	c := newPromCollector(otelmap.NamingOTel, nil)
+	for _, tc := range []struct {
+		m    otelmap.Metric
+		want string
+	}{
+		{otelmap.Metric{Name: "io.example.api.latency", Unit: "s", Kind: otelmap.Gauge}, "io_example_api_latency_seconds"},
+		{otelmap.Metric{Name: "io.example.api.requests", Kind: otelmap.Sum, Monotonic: true}, "io_example_api_requests_total"},
+		{otelmap.Metric{Name: "io.example.api.d_bucket", Kind: otelmap.Sum, Monotonic: true}, "io_example_api_d_bucket"},
+		{otelmap.Metric{Name: "io.example.api.d_count", Kind: otelmap.Sum, Monotonic: true}, "io_example_api_d_count"},
+		{otelmap.Metric{Name: "sdmetrics.source.up", Kind: otelmap.Gauge}, "sdmetrics_source_up"},
+		{otelmap.Metric{Name: "io.example.cpu", Unit: "1", Kind: otelmap.Gauge}, "io_example_cpu_ratio"},
+	} {
+		if got := c.promName(tc.m); got != tc.want {
+			t.Errorf("promName(%s) = %s, want %s", tc.m.Name, got, tc.want)
+		}
 	}
 }
