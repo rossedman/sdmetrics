@@ -56,9 +56,7 @@ func TestOTLPHTTPEndToEnd(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	cfg := Default()
-	cfg.Dir = dir
-	cfg.Interval = time.Hour
+	cfg := testConfig(dir)
 	cfg.OTLP.Protocol = "http/protobuf"
 	cfg.OTLP.Endpoint = srv.URL + "/v1/metrics" // a URL: its scheme decides TLS
 	cfg.OTLP.Headers = map[string]string{"X-Token": "secret"}
@@ -81,7 +79,7 @@ func TestOTLPHTTPEndToEnd(t *testing.T) {
 	}
 	mu.Lock()
 	defer mu.Unlock()
-	if !strings.Contains(strings.Join(sources, ","), "io.example.Queue") {
+	if !strings.Contains(strings.Join(sources, ","), "queue") {
 		t.Errorf("services exported: %v", sources)
 	}
 }
@@ -189,9 +187,7 @@ func TestOnceScrapeError(t *testing.T) {
 
 func TestPromResourceLabelsAndPages(t *testing.T) {
 	dir := startProvider(t)
-	cfg := Default()
-	cfg.Dir = dir
-	cfg.Interval = time.Hour
+	cfg := testConfig(dir)
 	cfg.Prometheus.Listen = "127.0.0.1:0"
 	cfg.Resource = map[string]string{"deployment.environment": "test"}
 	e := runExporter(t, cfg)

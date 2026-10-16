@@ -91,6 +91,17 @@ func startProvider(t *testing.T) string {
 	return ""
 }
 
+// testConfig scrapes dir and pins the test provider's unit, so results do
+// not depend on whether the test itself runs inside a systemd unit (as on
+// CI runners) or not.
+func testConfig(dir string) Config {
+	cfg := Default()
+	cfg.Dir = dir
+	cfg.Interval = time.Hour
+	cfg.Units = map[string]string{"io.example.Queue": "queue.service"}
+	return cfg
+}
+
 func runExporter(t *testing.T, cfg Config) *Exporter {
 	t.Helper()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -112,9 +123,7 @@ func runExporter(t *testing.T, cfg Config) *Exporter {
 func TestOTLPEndToEnd(t *testing.T) {
 	dir := startProvider(t)
 	s, addr := startSink(t)
-	cfg := Default()
-	cfg.Dir = dir
-	cfg.Interval = time.Hour
+	cfg := testConfig(dir)
 	cfg.OTLP.Endpoint = addr
 	cfg.OTLP.Insecure = true
 	cfg.Resource = map[string]string{"deployment.environment": "test"}
@@ -225,18 +234,16 @@ func scrapePromAddr(t *testing.T, e *Exporter) (string, string) {
 
 func TestPrometheusRaw(t *testing.T) {
 	dir := startProvider(t)
-	cfg := Default()
-	cfg.Dir = dir
-	cfg.Interval = time.Hour
+	cfg := testConfig(dir)
 	cfg.Prometheus.Listen = "127.0.0.1:0"
 	body := scrapeProm(t, runExporter(t, cfg))
 	for _, want := range []string{
 		"# HELP io_example_Queue_Depth Jobs waiting",
 		"# TYPE io_example_Queue_Depth gauge",
-		`io_example_Queue_Depth{service_name="io.example.Queue",systemd_report_source="io.example.Queue"} 42`,
+		`io_example_Queue_Depth{service_name="queue",systemd_report_source="io.example.Queue",systemd_unit_name="queue.service"} 42`,
 		"# TYPE io_example_Queue_JobsProcessedTotal counter",
-		`io_example_Queue_JobsProcessedTotal{result="ok",service_name="io.example.Queue",systemd_report_source="io.example.Queue"} 7`,
-		`io_example_Queue_State{service_name="io.example.Queue",systemd_object="worker-1",systemd_report_source="io.example.Queue",systemd_value="busy"} 1`,
+		`io_example_Queue_JobsProcessedTotal{result="ok",service_name="queue",systemd_report_source="io.example.Queue",systemd_unit_name="queue.service"} 7`,
+		`io_example_Queue_State{service_name="queue",systemd_object="worker-1",systemd_report_source="io.example.Queue",systemd_unit_name="queue.service",systemd_value="busy"} 1`,
 		`sdmetrics_source_up{service_name="sdmetrics",systemd_report_source="io.example.Queue"} 1`,
 		"go_goroutines",
 	} {
@@ -251,9 +258,7 @@ func TestPrometheusRaw(t *testing.T) {
 
 func TestPrometheusOTelNaming(t *testing.T) {
 	dir := startProvider(t)
-	cfg := Default()
-	cfg.Dir = dir
-	cfg.Interval = time.Hour
+	cfg := testConfig(dir)
 	cfg.Naming = "otel"
 	cfg.Prometheus.Listen = "127.0.0.1:0"
 	body := scrapeProm(t, runExporter(t, cfg))

@@ -46,3 +46,4 @@ site/
 /examples/*/scrape
 /bin/
 receiver-coverage.out
+!/hack/coverage.sh
