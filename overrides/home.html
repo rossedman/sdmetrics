@@ -1,0 +1,44 @@
+{#- Home page: a full-width hero under the tabs, then the page content. -#}
+{% extends "main.html" %}
+
+{% block tabs %}
+  {{ super() }}
+  <section class="sd-hero" aria-labelledby="sd-hero-title">
+    <div class="sd-hero__glow" aria-hidden="true"></div>
+    <div class="md-grid sd-hero__inner">
+      <div class="sd-hero__copy">
+        <p class="sd-hero__eyebrow"><span>systemd v260+</span> report framework</p>
+        <h1 id="sd-hero-title" class="sd-hero__title">systemd metrics for Go and&nbsp;OpenTelemetry</h1>
+        <p class="sd-hero__lead">
+          Publish your daemon's metrics under <code>/run/systemd/report/</code> in a few lines, then
+          export every source on the host, systemd's own included, as OTLP or Prometheus, each
+          attributed to the unit that produced it. Pure Go, no cgo.
+        </p>
+        <div class="sd-hero__actions">
+          <a class="sd-btn sd-btn--primary" href="{{ 'getting-started/quickstart-provider/' | url }}">Get started</a>
+          <a class="sd-btn sd-btn--ghost" href="{{ 'getting-started/quickstart-exporter/' | url }}">Export a host</a>
+          <a class="sd-btn sd-btn--ghost" href="{{ config.repo_url }}">GitHub</a>
+        </div>
+        <div class="sd-hero__install"><span aria-hidden="true">$</span> go get github.com/rossedman/sdmetrics@latest</div>
+      </div>
+      <div class="sd-hero__card" aria-label="sdmetrics-exporter -once output">
+        <div class="sd-hero__bar"><i></i><i></i><i></i><span>sdmetrics-exporter -once</span></div>
+        <pre><code><b>SOURCE</b>              <b>UNIT</b>
+io.systemd.Manager  init.scope
+io.systemd.Network  systemd-networkd.service
+io.example.Queue    queued.service
+
+<b>FAMILY</b>                               <b>VALUE</b>
+Manager.UnitsByTypeTotal{type=service} <em>142</em>
+Network.OperationalState{eth0}  <em>"routable"</em>
+Queue.JobsProcessed{result=ok}         <em>9120</em></code></pre>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{#- The hero carries the page's h1, so render the body without the default
+    title and edit button. -#}
+{% block content %}
+  {{ page.content }}
+{% endblock %}
