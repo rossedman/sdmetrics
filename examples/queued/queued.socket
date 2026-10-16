@@ -1,0 +1,15 @@
+# Socket activation for the queued example. systemd binds the report
+# socket; queued adopts it with provider.FromActivation().
+[Unit]
+Description=queued metrics socket
+
+[Socket]
+ListenStream=/run/systemd/report/io.example.Queue
+FileDescriptorName=io.example.Queue
+# Readable by any local user, like systemd's own sources. To restrict it
+# to the exporter, use SocketMode=0660 and SocketGroup=sdmetrics.
+SocketMode=0666
+RemoveOnStop=yes
+
+[Install]
+WantedBy=sockets.target

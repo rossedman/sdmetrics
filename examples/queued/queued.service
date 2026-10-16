@@ -1,0 +1,15 @@
+[Unit]
+Description=queued, the sdmetrics sample daemon
+Requires=queued.socket
+After=queued.socket
+
+[Service]
+ExecStart=/usr/local/bin/queued
+DynamicUser=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target
