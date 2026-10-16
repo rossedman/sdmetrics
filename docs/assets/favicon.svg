@@ -1,9 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="7" fill="#201A26"/>
-  <g fill="none" stroke-width="3.4" stroke-linecap="round">
-    <path stroke="#30D475" d="M7.3 23.5A10 10 0 0 1 16 8.5"/>
-    <path stroke="#00ADD8" d="M16 8.5A10 10 0 0 1 24.7 23.5"/>
-  </g>
-  <path d="M16 18.5L21 13.5" stroke="#F4F1F7" stroke-width="2.4" stroke-linecap="round"/>
-  <circle cx="16" cy="18.5" r="2.6" fill="#F4F1F7"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="sdmetrics">
+  <title>sdmetrics</title>
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6E4BFF"/><stop offset=".55" stop-color="#E8458B"/><stop offset="1" stop-color="#FF8A3D"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="30" fill="url(#tile)"/>
+  <path d="M31.09 93.00A38 38 0 1 1 96.91 93.00" fill="none" stroke="#FFFFFF59" stroke-width="10" stroke-linecap="round"/>
+  <path d="M31.09 93.00A38 38 0 0 1 92.24 48.57" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round"/>
+  <line x1="64" y1="74" x2="84.06" y2="55.93" stroke="#FFFFFF" stroke-width="7.5" stroke-linecap="round"/>
+  <circle cx="64" cy="74" r="9.5" fill="#FFFFFF"/>
+  <circle cx="64" cy="74" r="4.0" fill="#140F33"/>
 </svg>

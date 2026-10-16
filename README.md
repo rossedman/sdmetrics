@@ -9,8 +9,8 @@
   <a href="https://github.com/rossedman/sdmetrics/actions/workflows/integration.yml"><img src="https://github.com/rossedman/sdmetrics/actions/workflows/integration.yml/badge.svg" alt="Integration"></a>
   <a href="https://pkg.go.dev/github.com/rossedman/sdmetrics"><img src="https://pkg.go.dev/badge/github.com/rossedman/sdmetrics.svg" alt="Go Reference"></a>
   <a href="https://goreportcard.com/report/github.com/rossedman/sdmetrics"><img src="https://goreportcard.com/badge/github.com/rossedman/sdmetrics" alt="Go Report Card"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-30D475" alt="MIT License"></a>
-  <a href="https://rossedman.github.io/sdmetrics/"><img src="https://img.shields.io/badge/docs-sdmetrics-00ADD8" alt="Documentation"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-6E4BFF" alt="MIT License"></a>
+  <a href="https://rossedman.github.io/sdmetrics/"><img src="https://img.shields.io/badge/docs-sdmetrics-E8458B" alt="Documentation"></a>
 </p>
 
 **sdmetrics** connects Go and OpenTelemetry to systemd's metrics framework

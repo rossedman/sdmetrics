@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    paths: ["docs/**", "mkdocs.yml", "README.md", "CHANGELOG.md", "CONTRIBUTING.md"]
+    paths: ["docs/**", "overrides/**", "mkdocs.yml", "README.md", "CHANGELOG.md", "CONTRIBUTING.md"]
   workflow_dispatch:
 
 permissions:
