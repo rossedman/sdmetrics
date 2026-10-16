@@ -1,0 +1,22 @@
+display_name: systemd Report Receiver
+type: systemdreport
+
+description: |
+  Collects metrics from every systemd report source on the host: the
+  sockets under /run/systemd/report/ that serve the io.systemd.Metrics
+  Varlink interface (systemd v260 or newer). Each source becomes a
+  resource identified by its systemd unit.
+
+status:
+  class: receiver
+  stability:
+    alpha: [metrics]
+  distributions: []
+  codeowners:
+    active: [rossedman]
+
+tests:
+  config:
+    # A directory that does not exist, so lifecycle tests run anywhere:
+    # the receiver then reports no sources.
+    directory: /nonexistent/systemd/report

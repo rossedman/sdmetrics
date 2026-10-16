@@ -1,0 +1,138 @@
+# GoReleaser configuration. The Go packages (provider, scrape, otelmap and
+# the Collector receiver) are consumed with `go get`; releases ship the
+# sdmetrics-exporter binary as archives and as deb and rpm packages that
+# install the hardened systemd unit.
+#
+#   goreleaser check                          # validate this file
+#   goreleaser release --snapshot --clean     # local snapshot build into dist/
+#
+# CI builds a snapshot on every branch push and publishes a GitHub release
+# for every v* tag (.github/workflows/release.yml).
+version: 2
+
+project_name: sdmetrics
+
+before:
+  hooks:
+    - go mod tidy
+    - go test ./...
+
+builds:
+  - id: sdmetrics-exporter
+    main: ./cmd/sdmetrics-exporter
+    binary: sdmetrics-exporter
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X main.version={{ .Version }}
+      - -X main.commit={{ .ShortCommit }}
+      - -X main.date={{ .CommitDate }}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    # systemd's report framework is Linux only.
+    goos: [linux]
+    goarch: [amd64, arm64]
+
+archives:
+  - id: sdmetrics-exporter
+    ids: [sdmetrics-exporter]
+    formats: [tar.gz]
+    name_template: >-
+      sdmetrics-exporter_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    files:
+      - README.md
+      - LICENSE
+      - CHANGELOG.md
+      - src: packaging/systemd/sdmetrics-exporter.service
+        dst: systemd/sdmetrics-exporter.service
+      - src: packaging/sysusers.d/sdmetrics.conf
+        dst: sysusers.d/sdmetrics.conf
+      - src: packaging/config/exporter.yaml
+        dst: exporter.yaml
+
+nfpms:
+  - id: sdmetrics-exporter
+    ids: [sdmetrics-exporter]
+    package_name: sdmetrics-exporter
+    file_name_template: >-
+      sdmetrics-exporter_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    vendor: Ross Edman
+    homepage: https://rossedman.github.io/sdmetrics/
+    maintainer: Ross Edman <ross.edman@gmail.com>
+    description: |-
+      Exports every systemd report source on a host (systemd v260+) as
+      OpenTelemetry metrics, pushed over OTLP or served to Prometheus.
+    license: MIT
+    formats: [deb, rpm]
+    bindir: /usr/bin
+    contents:
+      - src: packaging/systemd/sdmetrics-exporter.service
+        dst: /usr/lib/systemd/system/sdmetrics-exporter.service
+      - src: packaging/sysusers.d/sdmetrics.conf
+        dst: /usr/lib/sysusers.d/sdmetrics.conf
+      - src: packaging/config/exporter.yaml
+        dst: /etc/sdmetrics/exporter.yaml
+        type: config|noreplace
+    scripts:
+      postinstall: packaging/scripts/postinstall.sh
+      preremove: packaging/scripts/preremove.sh
+      postremove: packaging/scripts/postremove.sh
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+snapshot:
+  # e.g. 0.1.1-snapshot.feat-receiver.a1b2c3d
+  version_template: >-
+    {{ incpatch .Version }}-snapshot.{{ replace (replace .Branch "/" "-") "_" "-" }}.{{ .ShortCommit }}
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore:"
+      - "^WIP"
+      - "Merge pull request"
+      - "Merge branch"
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\(.+\))??!?:.+$'
+      order: 0
+    - title: Bug fixes
+      regexp: '^.*?fix(\(.+\))??!?:.+$'
+      order: 1
+    - title: Performance
+      regexp: '^.*?perf(\(.+\))??!?:.+$'
+      order: 2
+    - title: Other changes
+      order: 999
+
+release:
+  github:
+    owner: rossedman
+    name: sdmetrics
+  prerelease: auto
+  mode: replace
+  header: |
+    ## sdmetrics {{ .Tag }}
+
+    Use the libraries with:
+
+    ```sh
+    go get github.com/rossedman/sdmetrics@{{ .Tag }}
+    ```
+
+    The assets below contain `sdmetrics-exporter` for Linux (amd64, arm64)
+    as archives and as deb and rpm packages, which install the hardened
+    `sdmetrics-exporter.service` unit. See the
+    [exporter guide](https://rossedman.github.io/sdmetrics/exporter/) to
+    set it up.
+  footer: |
+    **Full changelog**: https://github.com/rossedman/sdmetrics/compare/{{ .PreviousTag }}...{{ .Tag }}

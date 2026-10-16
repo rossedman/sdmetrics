@@ -1,0 +1,4 @@
+# Generated code: collapsed in diffs, excluded from language stats.
+receiver/systemdreportreceiver/internal/metadata/generated_*.go linguist-generated=true
+receiver/systemdreportreceiver/generated_*_test.go linguist-generated=true
+receiver/systemdreportreceiver/testdata/scraper/*.yaml linguist-generated=true

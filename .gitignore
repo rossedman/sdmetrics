@@ -31,3 +31,19 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# GoReleaser output
+dist/
+
+# MkDocs build output
+site/
+
+# Built binaries
+/sdmetrics-exporter
+/examples/*/queued
+/examples/*/prometheus-bridge
+/examples/*/otel-bridge
+/examples/*/scrape
+/bin/
+receiver-coverage.out
+!/hack/coverage.sh

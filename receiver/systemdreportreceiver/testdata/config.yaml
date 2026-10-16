@@ -1,0 +1,19 @@
+systemdreport:
+systemdreport/custom:
+  collection_interval: 15s
+  directory: /run/user/1000/systemd/report
+  include: ["io.systemd.*", "io.example.*"]
+  exclude: ["io.systemd.Network"]
+  source_timeout: 1s
+  concurrency: 4
+  manager_socket: /run/user/1000/systemd/io.systemd.Manager
+  naming: otel
+  resource:
+    deployment.environment: prod
+  service_names:
+    io.example.Queue: queue
+  units:
+    io.example.Queue: queued.service
+  self_metrics: false
+systemdreport/badnaming:
+  naming: fancy

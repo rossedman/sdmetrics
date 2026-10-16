@@ -1,0 +1,132 @@
+resourceMetrics:
+  - resource:
+      attributes:
+        - key: deployment.environment
+          value:
+            stringValue: test
+        - key: host.id
+          value:
+            stringValue: 0123456789abcdef0123456789abcdef
+        - key: host.name
+          value:
+            stringValue: host1
+        - key: service.name
+          value:
+            stringValue: sdmetrics
+    scopeMetrics:
+      - metrics:
+          - description: Report sources found
+            gauge:
+              dataPoints:
+                - asInt: "1"
+                  timeUnixNano: "1000000"
+            name: sdmetrics.sources
+            unit: '{source}'
+          - description: Report sources that could not be scraped
+            gauge:
+              dataPoints:
+                - asInt: "0"
+                  timeUnixNano: "1000000"
+            name: sdmetrics.sources.failed
+            unit: '{source}'
+          - description: Time spent scraping all sources
+            gauge:
+              dataPoints:
+                - asDouble: 0.000746981
+                  timeUnixNano: "1000000"
+            name: sdmetrics.scrape.duration
+            unit: s
+          - description: 1 if the source was scraped without error, else 0
+            gauge:
+              dataPoints:
+                - asInt: "1"
+                  attributes:
+                    - key: systemd.report.source
+                      value:
+                        stringValue: io.example.Queue
+                  timeUnixNano: "1000000"
+            name: sdmetrics.source.up
+          - description: Time spent scraping the source
+            gauge:
+              dataPoints:
+                - asDouble: 0.000634264
+                  attributes:
+                    - key: systemd.report.source
+                      value:
+                        stringValue: io.example.Queue
+                  timeUnixNano: "1000000"
+            name: sdmetrics.source.scrape.duration
+            unit: s
+          - description: 1 if the source's unit was resolved, else 0 (reason says why)
+            gauge:
+              dataPoints:
+                - asInt: "1"
+                  attributes:
+                    - key: systemd.report.source
+                      value:
+                        stringValue: io.example.Queue
+                  timeUnixNano: "1000000"
+            name: sdmetrics.source.unit.resolved
+        scope:
+          name: github.com/rossedman/sdmetrics/receiver/systemdreportreceiver
+          version: test
+  - resource:
+      attributes:
+        - key: deployment.environment
+          value:
+            stringValue: test
+        - key: host.id
+          value:
+            stringValue: 0123456789abcdef0123456789abcdef
+        - key: host.name
+          value:
+            stringValue: host1
+        - key: process.pid
+          value:
+            intValue: "12982"
+        - key: service.name
+          value:
+            stringValue: queued
+        - key: systemd.report.source
+          value:
+            stringValue: io.example.Queue
+        - key: systemd.unit.name
+          value:
+            stringValue: queued.service
+    scopeMetrics:
+      - metrics:
+          - description: Jobs waiting
+            gauge:
+              dataPoints:
+                - asInt: "42"
+                  timeUnixNano: "1000000"
+            name: io.example.queue.depth
+          - description: Jobs finished
+            name: io.example.queue.jobs_processed
+            sum:
+              aggregationTemporality: 2
+              dataPoints:
+                - asInt: "7"
+                  attributes:
+                    - key: result
+                      value:
+                        stringValue: ok
+                  startTimeUnixNano: "1000000"
+                  timeUnixNano: "1000000"
+              isMonotonic: true
+          - description: Per worker state
+            gauge:
+              dataPoints:
+                - asInt: "1"
+                  attributes:
+                    - key: systemd.object
+                      value:
+                        stringValue: worker-a
+                    - key: systemd.value
+                      value:
+                        stringValue: busy
+                  timeUnixNano: "1000000"
+            name: io.example.queue.worker_state
+        scope:
+          name: github.com/rossedman/sdmetrics/receiver/systemdreportreceiver
+          version: test
