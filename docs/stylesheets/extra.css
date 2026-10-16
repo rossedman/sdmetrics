@@ -265,7 +265,9 @@
   font-family: var(--md-code-font-family);
   font-size: 0.72rem;
   color: #ffffffe6;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 .sd-hero__install span {
   color: #ffd2a8;

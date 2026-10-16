@@ -47,3 +47,6 @@ site/
 /bin/
 receiver-coverage.out
 !/hack/coverage.sh
+
+# Python bytecode (MkDocs hooks)
+__pycache__/
