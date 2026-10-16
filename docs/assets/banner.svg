@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 400" role="img" aria-label="sdmetrics: systemd metrics for Go and OpenTelemetry">
+  <title>sdmetrics: systemd metrics for Go and OpenTelemetry</title>
+  <defs>
+    <radialGradient id="glowG" cx="0.12" cy="0.1" r="0.6">
+      <stop offset="0" stop-color="#30D475" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#30D475" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowC" cx="0.85" cy="0.9" r="0.55">
+      <stop offset="0" stop-color="#00ADD8" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#00ADD8" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="1.2" fill="#FFFFFF" fill-opacity=".07"/>
+    </pattern>
+    <linearGradient id="fade" x1="0" x2="1">
+      <stop offset="0.35" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.75" stop-color="#fff" stop-opacity="1"/>
+    </linearGradient>
+    <mask id="gridMask"><rect width="1280" height="400" fill="url(#fade)"/></mask>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2A2233"/>
+      <stop offset="1" stop-color="#1A1520"/>
+    </linearGradient>
+    <linearGradient id="arc" gradientUnits="userSpaceOnUse" x1="-120" y1="0" x2="120" y2="0">
+      <stop offset="0" stop-color="#30D475"/>
+      <stop offset="1" stop-color="#00ADD8"/>
+    </linearGradient>
+    <symbol id="mark" viewBox="0 0 128 128">
+      <rect width="128" height="128" rx="28" fill="url(#tile)"/>
+      <rect x="1" y="1" width="126" height="126" rx="27" fill="none" stroke="#FFFFFF" stroke-opacity=".1" stroke-width="2"/>
+      <g fill="none" stroke-width="10" stroke-linecap="round">
+        <path stroke="#30D475" d="M31.1 91A38 38 0 0 1 64 34"/>
+        <path stroke="#00ADD8" d="M64 34A38 38 0 0 1 96.9 91"/>
+      </g>
+      <path d="M64 72L84 52" stroke="#F4F1F7" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="64" cy="72" r="9" fill="#F4F1F7"/>
+    </symbol>
+  </defs>
+
+  <rect width="1280" height="400" fill="#0F1117"/>
+  <rect width="1280" height="400" fill="url(#glowG)"/>
+  <rect width="1280" height="400" fill="url(#glowC)"/>
+  <rect width="1280" height="400" fill="url(#dots)" mask="url(#gridMask)"/>
+
+  <!-- identity -->
+  <use href="#mark" x="80" y="92" width="104" height="104"/>
+  <text x="212" y="168" font-family="ui-monospace, 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace" font-size="70" font-weight="700" letter-spacing="-1" fill="#F4F1F7"><tspan fill="#30D475">sd</tspan>metrics</text>
+  <text x="82" y="250" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="25" fill="#B9B4C4">systemd metrics for Go and OpenTelemetry</text>
+
+  <g font-family="ui-monospace, 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace" font-size="14" fill="#D9D5E0">
+    <rect x="80" y="282" width="134" height="32" rx="16" fill="#FFFFFF" fill-opacity=".04" stroke="#FFFFFF" stroke-opacity=".12"/>
+    <circle cx="98" cy="298" r="4" fill="#30D475"/>
+    <text x="110" y="303">provider SDK</text>
+    <rect x="226" y="282" width="110" height="32" rx="16" fill="#FFFFFF" fill-opacity=".04" stroke="#FFFFFF" stroke-opacity=".12"/>
+    <circle cx="244" cy="298" r="4" fill="#3FC4A6"/>
+    <text x="256" y="303">exporter</text>
+    <rect x="348" y="282" width="110" height="32" rx="16" fill="#FFFFFF" fill-opacity=".04" stroke="#FFFFFF" stroke-opacity=".12"/>
+    <circle cx="366" cy="298" r="4" fill="#00ADD8"/>
+    <text x="378" y="303">receiver</text>
+  </g>
+
+  <!-- gauge -->
+  <g transform="translate(910 236)">
+    <path d="M-120 0A120 120 0 0 1 120 0" fill="none" stroke="#FFFFFF" stroke-opacity=".08" stroke-width="18" stroke-linecap="round"/>
+    <path d="M-120 0A120 120 0 0 1 84.9 -84.9" fill="none" stroke="url(#arc)" stroke-width="18" stroke-linecap="round"/>
+    <g stroke="#F4F1F7" stroke-opacity=".35" stroke-width="2" stroke-linecap="round">
+      <path d="M-94 0h-10M-66.5 -66.5l-7 -7M0 -94v-10M66.5 -66.5l7 -7M94 0h10"/>
+    </g>
+    <path d="M0 0L58 -58" stroke="#F4F1F7" stroke-width="8" stroke-linecap="round"/>
+    <circle r="15" fill="#F4F1F7"/>
+    <circle r="5" fill="#201A26"/>
+  </g>
+
+  <!-- report frames -->
+  <g font-family="ui-monospace, 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace" font-size="13">
+    <g transform="translate(704 284)">
+      <rect width="412" height="34" rx="9" fill="#30D475" fill-opacity=".08" stroke="#30D475" stroke-opacity=".45"/>
+      <text x="14" y="22" fill="#C9F5DA">io.systemd.Manager.UnitsByTypeTotal{type=service} 142</text>
+    </g>
+    <g transform="translate(704 328)">
+      <rect width="412" height="34" rx="9" fill="#00ADD8" fill-opacity=".08" stroke="#00ADD8" stroke-opacity=".45"/>
+      <text x="14" y="22" fill="#C4ECF6">systemd.manager.units_by_type  service.name=systemd</text>
+    </g>
+    <text x="1136" y="306" fill="#8E889B" font-size="12">report</text>
+    <text x="1136" y="350" fill="#8E889B" font-size="12">OTLP</text>
+  </g>
+</svg>

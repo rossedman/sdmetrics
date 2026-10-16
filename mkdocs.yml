@@ -1,0 +1,163 @@
+site_name: sdmetrics
+site_description: >-
+  systemd metrics for Go and OpenTelemetry: publish a Go program's metrics
+  through systemd's report framework (v260+), and export every report source
+  on a host as OpenTelemetry or Prometheus metrics. Pure Go, no cgo.
+site_author: Ross Edman
+site_url: https://rossedman.github.io/sdmetrics/
+repo_url: https://github.com/rossedman/sdmetrics
+repo_name: rossedman/sdmetrics
+edit_uri: edit/main/docs/
+copyright: Copyright &copy; 2026 Ross Edman &middot; MIT License
+
+theme:
+  name: material
+  language: en
+  logo: assets/logo-mono.svg
+  favicon: assets/favicon.svg
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+    admonition:
+      note: octicons/note-16
+      tip: octicons/light-bulb-16
+      warning: octicons/alert-16
+      danger: octicons/zap-16
+      example: octicons/beaker-16
+      info: octicons/info-16
+  font:
+    text: Inter
+    code: JetBrains Mono
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to system preference
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.footer
+    - navigation.indexes
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.action.edit
+    - toc.follow
+
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/rossedman/sdmetrics
+      name: sdmetrics on GitHub
+    - icon: fontawesome/brands/golang
+      link: https://pkg.go.dev/github.com/rossedman/sdmetrics
+      name: API reference on pkg.go.dev
+    - icon: material/rss
+      link: https://github.com/rossedman/sdmetrics/releases.atom
+      name: Release feed
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      permalink_title: Link to this section
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      base_path: [".", "docs"]
+      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+validation:
+  nav:
+  - Home: index.md
+  - Getting started:
+      - Installation: getting-started/installation.md
+      - "Quickstart: publish metrics": getting-started/quickstart-provider.md
+      - "Quickstart: export a host": getting-started/quickstart-exporter.md
+      - Core concepts: getting-started/concepts.md
+  - Guides:
+      - guides/index.md
+      - Provider SDK: guides/provider.md
+      - Labels, objects & strings: guides/labels-objects-strings.md
+      - Callback metrics & collectors: guides/collectors.md
+      - Socket activation & permissions: guides/sockets.md
+      - Bridging Prometheus: guides/prometheus-bridge.md
+      - Bridging OpenTelemetry: guides/otel-bridge.md
+      - Scraping from Go: guides/scraping.md
+      - Unit identity: guides/unit-identity.md
+      - Testing: guides/testing.md
+  - Exporter:
+      - exporter/index.md
+      - Configuration reference: exporter/configuration.md
+      - Running under systemd: exporter/systemd.md
+      - Prometheus endpoint: exporter/prometheus.md
+      - Self-metrics: exporter/self-metrics.md
+  - Collector receiver:
+      - receiver/index.md
+      - Building a collector with ocb: receiver/ocb.md
+  - Reference:
+      - reference/index.md
+      - OpenTelemetry mapping: reference/otel-mapping.md
+      - systemd naming rules: reference/naming.md
+      - Self-metrics: reference/self-metrics.md
+      - Compatibility: reference/compatibility.md
+  - Project:
+      - Architecture: project/architecture.md
+      - Design decisions: project/design.md
+      - Roadmap: project/roadmap.md
+      - FAQ: project/faq.md
+      - Contributing: project/contributing.md
+      - Releases: project/releases.md
+      - Changelog: project/changelog.md
