@@ -67,6 +67,9 @@ theme:
     - content.action.edit
     - toc.follow
 
+hooks:
+  - docs-hooks.py
+
 extra_css:
   - stylesheets/extra.css
 
