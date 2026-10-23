@@ -1,0 +1,88 @@
+# sarifix: scans this repository with SARIF-producing tools and turns the
+# findings into code scanning alerts and GitHub issues. See
+# https://rossedman.io/sarifix/configuration/ and the config reference at
+# https://rossedman.io/sarifix/reference/config/.
+#
+#   sarifix config validate --strict   # check this file
+#   sarifix scan                       # run every scanner into sarif/
+#   sarifix plan --sarif 'sarif/*.sarif'
+#
+# The GitHub Action (.github/workflows/sarifix.yml) installs the scanners
+# below at pinned versions and runs this file on every push, pull request
+# and weekly.
+version: 1
+
+scanners:
+  # Go lint with the repository's .golangci.yml, the same rules CI enforces.
+  # golangci-lint stays inside one module, so this covers the root module;
+  # the receiver module (receiver/systemdreportreceiver) is linted by CI.
+  - name: golangci-lint
+    command: ["golangci-lint", "run", "--output.sarif.path={out}", "./..."]
+    workdir: "{dir}"
+    scope: dir
+    timeout: 10m
+
+  # Known vulnerabilities in go.mod dependencies (both modules) and
+  # misconfigurations in the Dockerfile. Secrets are left to gitleaks.
+  - name: trivy
+    match: ["Trivy"]
+    command: ["trivy", "fs", "--quiet", "--scanners", "vuln,misconfig", "--ignorefile", "{repo}/.trivyignore.yaml", "--format", "sarif", "-o", "{out}", "{dir}"]
+
+  # Committed secrets.
+  - name: gitleaks
+    command: ["gitleaks", "dir", "{dir}", "--report-format", "sarif", "--report-path", "{out}", "--no-banner"]
+    offline: true
+
+  # Go security patterns from the Semgrep registry.
+  - name: semgrep
+    match: ["Semgrep OSS"]
+    command: ["semgrep", "scan", "--metrics=off", "--quiet", "--config", "p/golang", "--sarif", "--output", "{out}", "{dir}"]
+    timeout: 10m
+
+rules:
+  # Findings that become issues. Everything still reaches code scanning.
+  allow:
+    - golangci-lint/*
+    - trivy/CVE-*      # dependency bumps
+    - trivy/GHSA-*
+    - trivy/DS-*       # Dockerfile hardening
+    - semgrep/*
+  # A leaked secret needs rotating by a person, not an edit: it shows up in
+  # code scanning but never becomes an issue for an agent.
+  deny:
+    - gitleaks/*
+    # math/rand only appears in the examples, to simulate job timings, and is
+    # marked nosemgrep there. sarifix doesn't yet skip SARIF results that
+    # carry suppressions, so the rule is kept out of issues here as well.
+    - semgrep/go.lang.security.audit.crypto.math_random.math-random-used
+  min_level: warning
+
+paths:
+  # Never edited by a fix. .github/workflows/** is always added by sarifix.
+  deny:
+    - "receiver/systemdreportreceiver/internal/metadata/**" # mdatagen output
+    - "**/generated_*.go"
+    - "**/testdata/**"     # golden files and fixtures
+    - "docs/assets/**"     # generated SVGs
+    - "dist/**"
+    - "site/**"
+
+verify:
+  # A fix is kept only when the tests and lint of both modules still pass.
+  commands:
+    - ["make", "test"]
+    - ["make", "lint"]
+  require_no_new_findings: true
+
+agent:
+  provider: claude-code
+  extra_instructions: CONTRIBUTING.md
+
+publish:
+  issues:
+    label: sarifix
+    max_open: 10
+    # Issues handed to an agent automatically. 0 means you label them
+    # agent-ready by hand; the workflow's SARIFIX_QUEUE variable overrides it.
+    queue: 0
+    queue_label: agent-ready

@@ -335,6 +335,9 @@ func TestConcurrentUpdatesAndReads(t *testing.T) {
 	p := newProvider(t, "io.example.Race")
 	g := p.Gauge("G", provider.Labels("worker"))
 	ctr := p.Counter("C", provider.Labels("worker"))
+	// Publish one series up front: reads may start before any worker has
+	// written, and a provider with nothing to publish answers NoSuchMetric.
+	g.With("0").Set(0)
 	c := serve(t, p)
 
 	var wg sync.WaitGroup

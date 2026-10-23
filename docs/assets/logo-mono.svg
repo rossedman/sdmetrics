@@ -1,8 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-label="sdmetrics">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="sdmetrics">
   <title>sdmetrics</title>
-  <g stroke="currentColor" stroke-linecap="round" transform="translate(0 6)">
-    <path stroke-width="12" d="M22.4 94A48 48 0 1 1 105.6 94"/>
-    <path stroke-width="9" d="M64 70L89 45"/>
-  </g>
-  <circle cx="64" cy="76" r="11" fill="currentColor"/>
+  <path d="M22.43 96.00A48 48 0 1 1 105.57 96.00" fill="none" stroke="currentColor" stroke-opacity=".4" stroke-width="12" stroke-linecap="round"/>
+  <path d="M22.43 96.00A48 48 0 0 1 99.67 39.88" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round"/>
+  <line x1="64" y1="72" x2="89.27" y2="49.25" stroke="currentColor" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="64" cy="72" r="11" fill="currentColor"/>
 </svg>

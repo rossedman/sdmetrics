@@ -11,7 +11,7 @@ import (
 	"context"
 	"flag"
 	"log"
-	"math/rand/v2"
+	"math/rand/v2" // nosemgrep: go.lang.security.audit.crypto.math_random.math-random-used
 	"os"
 	"os/signal"
 	"syscall"

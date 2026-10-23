@@ -1,34 +1,11 @@
 ---
 title: sdmetrics
 description: Publish a Go program's metrics through systemd's report framework, and export every report source on a host as OpenTelemetry or Prometheus metrics.
+template: home.html
 hide:
   - navigation
   - toc
 ---
-
-<div class="sd-hero" markdown>
-
-<img class="sd-hero__banner" src="assets/banner.svg" alt="sdmetrics: systemd metrics for Go and OpenTelemetry">
-
-<h1 class="sd-visually-hidden">sdmetrics</h1>
-
-<div class="sd-hero__body" markdown>
-
-<p class="sd-hero__lead">
-<strong>systemd v260 gave every service a standard place to publish metrics. sdmetrics connects it to Go and OpenTelemetry.</strong>
-Publish your daemon's metrics under <code>/run/systemd/report/</code> in a few lines, then export every source on the
-host, systemd's own included, as OTLP or Prometheus, each attributed to the unit that produced it. Pure Go, no cgo.
-</p>
-
-<p class="sd-hero__actions">
-<a class="md-button md-button--primary" href="getting-started/quickstart-provider/">Get started</a>
-<a class="md-button" href="https://github.com/rossedman/sdmetrics">View on GitHub</a>
-</p>
-
-<div class="sd-hero__install">go get github.com/rossedman/sdmetrics@latest</div>
-
-</div>
-</div>
 
 ## Thirty seconds of sdmetrics { #thirty-seconds }
 
