@@ -60,6 +60,12 @@ either.
 - Benchmarks: pull requests compare `scrape` and `provider` benchmarks
   against the base branch, and a median slowdown over 25% fails the check.
 - Fuzz targets: `make fuzz FUZZTIME=1m`. Add crashers to `testdata/fuzz`.
+- Scanners: [sarifix](https://rossedman.io/sarifix/) runs golangci-lint,
+  Trivy, gitleaks and Semgrep (see `sarifix.yaml`). Pull requests get the
+  findings they introduce as annotations; on `main`, findings go to code
+  scanning and to issues labeled `sarifix`. To run it locally with the
+  scanners on your `PATH`: `sarifix scan && sarifix plan --sarif 'sarif/*.sarif'`.
+  Intended Trivy findings go in `.trivyignore.yaml`, with a reason.
 
 ## Generated code
 

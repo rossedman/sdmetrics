@@ -50,3 +50,6 @@ receiver-coverage.out
 
 # Python bytecode (MkDocs hooks)
 __pycache__/
+
+# sarifix scan output
+/sarif/
