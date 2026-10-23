@@ -1,0 +1,48 @@
+# sarifix runs the scanners in sarifix.yaml. On pushes to main, weekly and on
+# demand it uploads the findings to code scanning and keeps one issue per
+# batch of findings for Claude or a person to fix. On pull requests it
+# reports the findings the change introduces.
+name: sarifix
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "23 6 * * 1" # Mondays
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: sarifix-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  sarifix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read # upload-sarif reads the run's metadata
+      security-events: write # code scanning upload
+      issues: write # one issue per batch
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # pull requests are compared with their merge base
+          persist-credentials: false
+      # golangci-lint needs Go.
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+          cache-dependency-path: |
+            go.sum
+            receiver/systemdreportreceiver/go.sum
+      # Installs sarifix and the scanners in sarifix.yaml, then scans.
+      # Setting the repository variable SARIFIX_QUEUE above 0 labels that
+      # many issues agent-ready, which starts paid agent runs; unset, issues
+      # are queued by hand.
+      - uses: rossedman/sarifix@0147bd865e6aec0892fce765f16d48b7ac5eb273 # v0.2.3
+        with:
+          queue: ${{ vars.SARIFIX_QUEUE }}
