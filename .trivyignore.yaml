@@ -1,0 +1,10 @@
+# Trivy findings that are intended. sarifix.yaml passes this file to Trivy.
+misconfigurations:
+  # The integration image boots systemd, which must run as root PID 1, and
+  # the tests poll it themselves, so it has no USER and no HEALTHCHECK.
+  - id: DS-0002
+    paths: ["integration/images/Dockerfile"]
+    statement: systemd runs as root PID 1 in the integration container
+  - id: DS-0026
+    paths: ["integration/images/Dockerfile"]
+    statement: the integration tests check the container's health themselves
