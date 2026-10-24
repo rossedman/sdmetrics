@@ -22,7 +22,7 @@ trap 'docker rm -f "$NAME" >/dev/null' EXIT
 
 for _ in $(seq 1 60); do
     state=$(docker exec "$NAME" systemctl is-system-running 2>/dev/null || true)
-    case "$state" in running|degraded) break ;; esac
+    case "$state" in running | degraded) break ;; esac
     sleep 1
 done
 docker exec "$NAME" systemctl --version | head -1
