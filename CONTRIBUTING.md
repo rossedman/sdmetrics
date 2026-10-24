@@ -97,7 +97,9 @@ lint on edit, a test and coverage gate before Claude stops, configured by
 `.guardrails.yaml`), the [sarifix](https://rossedman.io/sarifix/) plugin
 (new scanner findings from `sarifix.yaml` before Claude stops) and the
 go-bootstrap plugin. Path-scoped standards for Claude live in
-`.claude/rules/`. `.guardrails.yaml`, `.golangci.yml` and `sarifix.yaml`
+`.claude/rules/`, and `.claude/skills/steward/` tells Claude how to take a
+pull request to green here: how to reproduce each CI job, Dependabot and
+golden-file handling, and what to ask a person about first. `.guardrails.yaml`, `.golangci.yml` and `sarifix.yaml`
 are edited by people only.
 
 ## Generated code
