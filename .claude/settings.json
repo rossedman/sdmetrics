@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "extraKnownMarketplaces": {
+    "rossedman": {
+      "source": { "source": "github", "repo": "rossedman/claude" }
+    },
+    "guardrails": {
+      "source": { "source": "github", "repo": "rossedman/guardrails" }
+    }
+  },
+  "enabledPlugins": {
+    "go-bootstrap@rossedman": true,
+    "sarifix@rossedman": true,
+    "guardrails@guardrails": true
+  },
+  "env": {
+    "SARIFIX_BASE": "origin/main"
+  },
+  "permissions": {
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git commit --no-verify:*)",
+      "Edit(.guardrails.yaml)",
+      "Write(.guardrails.yaml)",
+      "Edit(.golangci.yml)",
+      "Write(.golangci.yml)",
+      "Edit(sarifix.yaml)",
+      "Write(sarifix.yaml)"
+    ]
+  }
+}
