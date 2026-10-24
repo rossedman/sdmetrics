@@ -73,6 +73,8 @@ func Name(name, unit string) string {
 	return n
 }
 
+// fields returns the attributes as a field map with the extra key-value pairs
+// added, or nil if there are none.
 func fields(set attribute.Set, extra ...string) map[string]string {
 	if set.Len() == 0 && len(extra) == 0 {
 		return nil
@@ -88,6 +90,7 @@ func fields(set attribute.Set, extra ...string) map[string]string {
 	return f
 }
 
+// points converts data points to samples.
 func points[N int64 | float64](dps []metricdata.DataPoint[N]) []provider.Sample {
 	out := make([]provider.Sample, len(dps))
 	for i, dp := range dps {
@@ -96,6 +99,7 @@ func points[N int64 | float64](dps []metricdata.DataPoint[N]) []provider.Sample 
 	return out
 }
 
+// histogram converts a histogram to cumulative bucket, sum and count families.
 func histogram[N int64 | float64](name, help string, h metricdata.Histogram[N]) []provider.Family {
 	buckets := provider.Family{Name: name + "_bucket", Description: help + " (cumulative buckets)", Type: provider.TypeCounter}
 	sum := provider.Family{Name: name + "_sum", Description: help + " (sum)", Type: provider.TypeCounter}
@@ -119,6 +123,8 @@ func histogram[N int64 | float64](name, help string, h metricdata.Histogram[N]) 
 	return []provider.Family{buckets, sum, count}
 }
 
+// expHistogram converts an exponential histogram to sum and count families;
+// its buckets have no Prometheus-style equivalent and are dropped.
 func expHistogram[N int64 | float64](name, help string, h metricdata.ExponentialHistogram[N]) []provider.Family {
 	sum := provider.Family{Name: name + "_sum", Description: help + " (sum)", Type: provider.TypeCounter}
 	count := provider.Family{Name: name + "_count", Description: help + " (count)", Type: provider.TypeCounter}
@@ -129,6 +135,7 @@ func expHistogram[N int64 | float64](name, help string, h metricdata.Exponential
 	return []provider.Family{sum, count}
 }
 
+// sumFamily converts a sum, which is a counter only if cumulative and monotonic.
 func sumFamily[N int64 | float64](name, help string, s metricdata.Sum[N]) provider.Family {
 	t := provider.TypeGauge
 	// Only a cumulative monotonic sum is a counter; a delta sum resets on
@@ -139,6 +146,7 @@ func sumFamily[N int64 | float64](name, help string, s metricdata.Sum[N]) provid
 	return provider.Family{Name: name, Description: help, Type: t, Samples: points(s.DataPoints)}
 }
 
+// convert converts one OpenTelemetry metric to provider families.
 func convert(m metricdata.Metrics) []provider.Family {
 	name, help := Name(m.Name, m.Unit), m.Description
 	switch d := m.Data.(type) {

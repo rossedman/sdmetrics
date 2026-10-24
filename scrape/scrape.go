@@ -286,6 +286,7 @@ func (s *Scraper) discover() ([]entry, error) {
 	return out, nil
 }
 
+// wanted reports whether name passes the Include and Exclude patterns.
 func (s *Scraper) wanted(name string) bool {
 	match := func(pats []string) bool {
 		for _, p := range pats {
@@ -301,6 +302,7 @@ func (s *Scraper) wanted(name string) bool {
 	return !match(s.opts.Exclude)
 }
 
+// warnOnce logs a dropped-metrics warning once per source, family and reason.
 func (s *Scraper) warnOnce(source, family, reason string, args ...any) {
 	if _, dup := s.warned.LoadOrStore(source+"\x00"+family+"\x00"+reason, struct{}{}); dup {
 		return
@@ -308,6 +310,8 @@ func (s *Scraper) warnOnce(source, family, reason string, args ...any) {
 	s.opts.Logger.Warn("scrape: dropping metrics", append([]any{"source", source, "family", family, "reason", reason}, args...)...)
 }
 
+// scrapeOne describes and lists one source, resolving the unit that owns its
+// socket. Failures are recorded on the returned Source.
 func (s *Scraper) scrapeOne(ctx context.Context, name, sockPath string) (src Source) {
 	start := time.Now()
 	src = Source{Name: name, Path: sockPath}

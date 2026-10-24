@@ -44,13 +44,14 @@ integration-container: ## Run integration tests in a container booting systemd (
 	hack/integration-container.sh
 
 .PHONY: fuzz
-fuzz: ## Fuzz the value decoder and name sanitizer for FUZZTIME each
+fuzz: ## Fuzz the value and field decoders and the name sanitizer for FUZZTIME each
 	$(GO) test ./scrape/ -run '^$$' -fuzz FuzzDecodeValue -fuzztime $(FUZZTIME)
+	$(GO) test ./scrape/ -run '^$$' -fuzz FuzzDecodeFields -fuzztime $(FUZZTIME)
 	$(GO) test ./internal/names/ -run '^$$' -fuzz FuzzSanitizeField -fuzztime $(FUZZTIME)
 
 .PHONY: bench
-bench: ## Run benchmarks (scraper against 200 fake sources, provider hot paths)
-	$(GO) test -run '^$$' -bench . -benchmem -benchtime $(BENCHTIME) ./scrape/ ./provider/
+bench: ## Run benchmarks (scraper against 200 fake sources, provider hot paths, name sanitizer)
+	$(GO) test -run '^$$' -bench . -benchmem -benchtime $(BENCHTIME) ./scrape/ ./provider/ ./internal/names/
 
 .PHONY: lint
 lint: ## Run gofmt, go vet and golangci-lint in both modules
@@ -59,6 +60,15 @@ lint: ## Run gofmt, go vet and golangci-lint in both modules
 	$(GO) vet -tags integration ./integration/
 	golangci-lint run ./...
 	cd $(RECEIVER) && $(GO) vet ./... && golangci-lint run --config ../../.golangci.yml ./...
+
+.PHONY: doccheck
+doccheck: ## Fail if a function, method or package lacks a doc comment
+	$(GO) run ./hack/doccheck .
+
+.PHONY: vuln
+vuln: ## Check both modules for known vulnerabilities with govulncheck
+	$(GO) run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
+	cd $(RECEIVER) && $(GO) run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
 
 .PHONY: tidy
 tidy: ## Tidy both modules
@@ -97,4 +107,4 @@ release-check: ## Validate the GoReleaser config
 
 .PHONY: snapshot
 snapshot: ## Build a local GoReleaser snapshot into dist/
-	goreleaser release --snapshot --clean
+	goreleaser release --snapshot --clean --skip=sign

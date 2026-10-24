@@ -16,6 +16,7 @@ import (
 	"github.com/rossedman/sdmetrics/scrape"
 )
 
+// main scrapes every report source once and prints the result.
 func main() {
 	dir := flag.String("dir", scrape.DefaultDir, "report directory")
 	flag.Parse()

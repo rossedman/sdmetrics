@@ -26,6 +26,7 @@ import (
 	"github.com/rossedman/sdmetrics/provider/otelbridge"
 )
 
+// main bridges an OpenTelemetry meter provider to a systemd report socket.
 func main() {
 	dir := flag.String("dir", provider.DefaultDir, "report directory")
 	flag.Parse()

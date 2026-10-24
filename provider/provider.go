@@ -175,6 +175,8 @@ func New(name string, opts ...Option) (*Provider, error) {
 	return p, nil
 }
 
+// mainVersion returns the main module's version from the build info, or
+// "(devel)" if unknown.
 func mainVersion() string {
 	if bi, ok := debug.ReadBuildInfo(); ok && bi.Main.Version != "" {
 		return bi.Main.Version
@@ -188,8 +190,9 @@ func (p *Provider) Name() string { return p.name }
 // Path returns the socket path Serve binds when not socket-activated.
 func (p *Provider) Path() string { return p.cfg.path }
 
-// family returns the full family name for a metric name, or panics if
-// consumers would drop it or it is registered twice.
+// claim returns the full family name for a metric name, or panics if
+// consumers would drop it or it is registered twice. It records the name as
+// taken.
 func (p *Provider) claim(name string) string {
 	full := p.name + "." + name
 	if !names.BelongsTo(full, p.name) {
@@ -204,6 +207,7 @@ func (p *Provider) claim(name string) string {
 	return full
 }
 
+// add appends s to the sources without disturbing concurrent readers.
 func (p *Provider) add(s source) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -213,6 +217,7 @@ func (p *Provider) add(s source) {
 	p.families.Store(ptr(append(next, s)))
 }
 
+// ptr returns a pointer to v.
 func ptr[T any](v T) *T { return &v }
 
 // Collector is a source of metric families computed on each read, for
@@ -256,6 +261,8 @@ type collectorSource struct {
 	warned sync.Map // family name -> struct{}
 }
 
+// collect calls the collector and returns its families with their full names,
+// leaving the name empty for families that must be dropped.
 func (s *collectorSource) collect(ctx context.Context) ([]Family, []string) {
 	fams, err := s.c.Collect(ctx)
 	if err != nil {
@@ -280,12 +287,14 @@ func (s *collectorSource) collect(ctx context.Context) ([]Family, []string) {
 	return fams, full
 }
 
+// warnOnce logs why a collector family was dropped, once per family name.
 func (s *collectorSource) warnOnce(name, why string) {
 	if _, dup := s.warned.LoadOrStore(name, struct{}{}); !dup {
 		s.p.cfg.logger.Warn("provider: dropping collector family", "provider", s.p.name, "family", name, "reason", why)
 	}
 }
 
+// describe emits the description of each valid collected family.
 func (s *collectorSource) describe(ctx context.Context, emit func(metrics.DescribeOut) error) error {
 	fams, full := s.collect(ctx)
 	for i, f := range fams {
@@ -299,6 +308,7 @@ func (s *collectorSource) describe(ctx context.Context, emit func(metrics.Descri
 	return nil
 }
 
+// list emits every sample of each valid collected family.
 func (s *collectorSource) list(ctx context.Context, emit func(metrics.ListOut) error) error {
 	fams, full := s.collect(ctx)
 	for i, f := range fams {
@@ -367,6 +377,7 @@ func encodeFloat(f float64) (json.RawMessage, bool) {
 	return strconv.AppendFloat(nil, f, 'g', -1, 64), true
 }
 
+// listOut builds a List reply for one value.
 func listOut(name, object string, fields map[string]string, value json.RawMessage) metrics.ListOut {
 	out := metrics.ListOut{Name: name, Value: value}
 	if object != "" {
@@ -403,6 +414,8 @@ func (p *Provider) Serve(ctx context.Context) error {
 	return srv.Serve(ctx, l)
 }
 
+// listen returns the listener Serve uses: the configured one, an adopted
+// activation socket, or a newly bound socket at the configured path.
 func (p *Provider) listen() (net.Listener, error) {
 	if p.cfg.listener != nil {
 		return p.cfg.listener, nil

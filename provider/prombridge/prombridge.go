@@ -51,6 +51,8 @@ func (c *Collector) Collect(context.Context) ([]provider.Family, error) {
 	return out, err
 }
 
+// labels returns the metric's labels as a field map with the extra key-value
+// pairs added, or nil if there are none.
 func labels(m *dto.Metric, extra ...string) map[string]string {
 	if len(m.GetLabel()) == 0 && len(extra) == 0 {
 		return nil
@@ -74,6 +76,7 @@ func counterValue(v float64) any {
 	return v
 }
 
+// formatBound formats a bucket bound or quantile, writing +Inf for infinity.
 func formatBound(b float64) string {
 	if math.IsInf(b, 1) {
 		return "+Inf"
@@ -81,6 +84,7 @@ func formatBound(b float64) string {
 	return strconv.FormatFloat(b, 'g', -1, 64)
 }
 
+// convert converts one Prometheus metric family to provider families.
 func convert(mf *dto.MetricFamily) []provider.Family {
 	name := names.SanitizeField(mf.GetName())
 	help := mf.GetHelp()

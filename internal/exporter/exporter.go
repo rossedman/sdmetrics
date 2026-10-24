@@ -77,6 +77,8 @@ func New(ctx context.Context, cfg Config, log *slog.Logger, version string) (*Ex
 	return e, nil
 }
 
+// newPusher returns an OTLP metric exporter for c, over HTTP or gRPC
+// according to its protocol.
 func newPusher(ctx context.Context, c OTLPConfig) (pusher, error) {
 	// The SDK exporters also read the standard OTEL_EXPORTER_OTLP_*
 	// variables; options given here take precedence.
@@ -215,6 +217,8 @@ func (e *Exporter) once(ctx context.Context) error {
 	return nil
 }
 
+// promServer binds the Prometheus listen address and returns an HTTP server
+// for the metrics path and /healthz, with its listener. The caller serves it.
 func (e *Exporter) promServer() (*http.Server, net.Listener, error) {
 	reg := prometheus.NewRegistry()
 	reg.MustRegister(e.prom, collectors.NewGoCollector(), collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))

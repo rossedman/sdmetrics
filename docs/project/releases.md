@@ -29,7 +29,7 @@ flowchart LR
     snap --> art["workflow artifact<br/>sdmetrics-snapshot-&lt;branch&gt;<br/>(kept 14 days)"]
     tag["push tag v0.1.0"] --> test["go test -race, both modules"]
     test --> rel["GoReleaser release"]
-    rel --> gh["GitHub release<br/>tarballs · deb · rpm · checksums · notes"]
+    rel --> gh["GitHub release<br/>tarballs · deb · rpm · signed checksums · notes"]
 ```
 
 ### Snapshots on every branch
@@ -50,7 +50,8 @@ publishes a GitHub release with:
 - `sdmetrics-exporter` for Linux on amd64 and arm64, as `tar.gz` archives
   (with `README.md`, `LICENSE`, `CHANGELOG.md`, the unit, the sysusers.d file
   and `exporter.yaml`) and as deb and rpm packages that install them;
-- `checksums.txt` (SHA-256);
+- `checksums.txt` (SHA-256), signed keylessly with cosign
+  (`checksums.txt.sigstore.json`), and a build provenance attestation;
 - release notes grouped by commit prefix: Features (`feat:`), Bug fixes
   (`fix:`), Performance (`perf:`), Other changes.
 
@@ -62,8 +63,19 @@ The receiver module needs no release assets: tagging
 
 ## Verifying downloads
 
+Releases that ship `checksums.txt.sigstore.json` are signed with
+[cosign](https://docs.sigstore.dev/) and carry GitHub build provenance. Download the assets you need with `checksums.txt` and its
+bundle, then:
+
 ```sh
+# Every archive and package is listed in checksums.txt, which is signed
+# keylessly by the release workflow.
+cosign verify-blob checksums.txt \
+  --bundle checksums.txt.sigstore.json \
+  --certificate-identity-regexp '^https://github.com/rossedman/sdmetrics/.github/workflows/release.yml@refs/tags/v' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
 sha256sum --check --ignore-missing checksums.txt
+gh attestation verify sdmetrics-exporter_*_linux_amd64.tar.gz --repo rossedman/sdmetrics
 ```
 
 ## Cutting a release (maintainers)

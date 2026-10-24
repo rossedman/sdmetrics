@@ -22,6 +22,7 @@ func Print(w io.Writer, res *scrape.Result, format string) error {
 	return fmt.Errorf("unknown format %q: want text or json", format)
 }
 
+// printText writes res as an aligned table with a summary line.
 func printText(w io.Writer, res *scrape.Result) error {
 	tw := tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(tw, "SOURCE\tUNIT\tFAMILY\tTYPE\tOBJECT\tFIELDS\tVALUE")
@@ -53,6 +54,7 @@ func printText(w io.Writer, res *scrape.Result) error {
 	return err
 }
 
+// fields formats a metric's fields as sorted key=value pairs, or "-" if empty.
 func fields(m map[string]string) string {
 	if len(m) == 0 {
 		return "-"
@@ -94,6 +96,7 @@ type jsonMetric struct {
 	Value  any               `json:"value"`
 }
 
+// printJSON writes res as indented JSON.
 func printJSON(w io.Writer, res *scrape.Result) error {
 	out := make([]jsonSource, 0, len(res.Sources))
 	for _, s := range res.Sources {

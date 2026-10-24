@@ -28,12 +28,12 @@ jobs:
       security-events: write # code scanning upload
       issues: write # one issue per batch
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0 # pull requests are compared with their merge base
           persist-credentials: false
       # golangci-lint needs Go.
-      - uses: actions/setup-go@v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: stable
           cache-dependency-path: |
@@ -43,6 +43,6 @@ jobs:
       # Setting the repository variable SARIFIX_QUEUE above 0 labels that
       # many issues agent-ready, which starts paid agent runs; unset, issues
       # are queued by hand.
-      - uses: rossedman/sarifix@0147bd865e6aec0892fce765f16d48b7ac5eb273 # v0.2.3
+      - uses: rossedman/sarifix@706469faaa3f32eb199873b93219d195583e8537 # v0.3.1
         with:
           queue: ${{ vars.SARIFIX_QUEUE }}

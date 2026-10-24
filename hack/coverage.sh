@@ -16,7 +16,7 @@ total() {
 }
 
 go test -count=1 -coverprofile=coverage.raw ./... >/dev/null
-grep -v '/examples/' coverage.raw > coverage.out
+grep -v '/examples/' coverage.raw >coverage.out
 rm coverage.raw
 root=$(total . "$PWD/coverage.out")
 

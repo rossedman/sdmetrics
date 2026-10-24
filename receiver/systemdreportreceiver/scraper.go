@@ -27,6 +27,7 @@ type reportScraper struct {
 	noDirOnce sync.Once
 }
 
+// newReportScraper returns a scraper configured from cfg and set.
 func newReportScraper(cfg *Config, set receiver.Settings) *reportScraper {
 	naming, _ := cfg.naming()
 	return &reportScraper{
@@ -52,6 +53,8 @@ func newReportScraper(cfg *Config, set receiver.Settings) *reportScraper {
 	}
 }
 
+// scrape scrapes every report source and returns the mapped metrics. A host
+// without a report directory yields no metrics and no error.
 func (s *reportScraper) scrape(ctx context.Context) (pmetric.Metrics, error) {
 	res, err := s.scraper.Scrape(ctx)
 	if errors.Is(err, scrape.ErrNoReportDir) {
@@ -122,6 +125,7 @@ func toPdata(b otelmap.Batch, version string) pmetric.Metrics {
 	return md
 }
 
+// putAttrs copies attrs into m.
 func putAttrs(m pcommon.Map, attrs []otelmap.Attribute) {
 	m.EnsureCapacity(len(attrs))
 	for _, a := range attrs {
