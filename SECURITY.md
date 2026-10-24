@@ -12,6 +12,26 @@ Please report vulnerabilities privately through
 not in public issues. Include a description, affected versions and, if you
 can, a reproducer. You can expect an acknowledgement within a week.
 
+## Verifying releases
+
+Release assets are listed in `checksums.txt`, which the release workflow
+signs keylessly with [cosign](https://docs.sigstore.dev/) using its GitHub
+OIDC identity; no keys are involved. Each release also carries a GitHub
+build provenance attestation.
+
+```sh
+# Every archive and package is listed in checksums.txt, which is signed
+# keylessly by the release workflow.
+cosign verify-blob checksums.txt \
+  --bundle checksums.txt.sigstore.json \
+  --certificate-identity-regexp '^https://github.com/rossedman/sdmetrics/.github/workflows/release.yml@refs/tags/v' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+sha256sum --check --ignore-missing checksums.txt
+gh attestation verify sdmetrics-exporter_*_linux_amd64.tar.gz --repo rossedman/sdmetrics
+```
+
+A signature from any other repository or workflow fails verification.
+
 ## Security model
 
 **The scraper and exporter only read.** They call `io.systemd.Metrics.List`

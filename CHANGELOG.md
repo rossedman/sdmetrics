@@ -43,3 +43,6 @@ versioned with the root module and tagged `receiver/systemdreportreceiver/vX.Y.Z
   Linux), a benchmark gate against the base branch, a 90% coverage minimum,
   and examples: the
   `queued` sample daemon, both bridges and the scraper.
+- Release checksums signed keylessly with cosign
+  (`checksums.txt.sigstore.json`) and a GitHub build provenance
+  attestation; see `SECURITY.md` for how to verify a download.
