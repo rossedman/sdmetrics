@@ -109,3 +109,10 @@ func FuzzSanitizeField(f *testing.F) {
 		}
 	})
 }
+
+func BenchmarkSanitizeField(b *testing.B) {
+	b.ReportAllocs()
+	for b.Loop() {
+		SanitizeField("http_server.request-duration__seconds")
+	}
+}

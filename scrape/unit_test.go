@@ -1,6 +1,7 @@
 package scrape
 
 import (
+	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
@@ -98,6 +99,25 @@ func FuzzDecodeValue(f *testing.F) {
 		v, err := decodeValue(b)
 		if err == nil && v.Kind != KindInt && v.Kind != KindFloat && v.Kind != KindString {
 			t.Fatalf("decodeValue(%q) = %+v with no error", b, v)
+		}
+	})
+}
+
+func FuzzDecodeFields(f *testing.F) {
+	for _, s := range []string{`{"state":"active","n":3}`, "null", "", "[1]", `{"a":null,"b":{"c":1}}`, `{"a":"\u00e9"}`} {
+		f.Add([]byte(s))
+	}
+	f.Fuzz(func(t *testing.T, b []byte) {
+		got, err := decodeFields(b)
+		if err != nil && got != nil {
+			t.Fatalf("decodeFields(%q) = %v with error %v", b, got, err)
+		}
+		if err == nil && got != nil {
+			// Every key in the input object survives the decode.
+			var m map[string]json.RawMessage
+			if json.Unmarshal(b, &m) == nil && len(m) != len(got) {
+				t.Fatalf("decodeFields(%q) has %d fields, want %d", b, len(got), len(m))
+			}
 		}
 	})
 }
