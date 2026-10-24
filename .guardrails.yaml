@@ -5,3 +5,8 @@
 # overrides the preset. Docs: https://rossedman.github.io/guardrails/configuration/
 version: 1
 preset: strict
+go:
+  coverage:
+    # Examples are documentation, run by hand and in the integration tests;
+    # hack/coverage.sh excludes them too. Lists replace the defaults.
+    exclude: ["**/mocks/**", "**/*_mock.go", "**/*.pb.go", "cmd/**/main.go", "examples/**"]
