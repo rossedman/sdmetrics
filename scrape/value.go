@@ -38,6 +38,7 @@ func (v Value) Number() float64 {
 	return v.Float
 }
 
+// String formats the value for display, quoting strings.
 func (v Value) String() string {
 	switch v.Kind {
 	case KindInt:

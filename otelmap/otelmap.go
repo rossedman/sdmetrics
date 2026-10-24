@@ -192,6 +192,7 @@ func NewMapper(opts Options) *Mapper {
 	return &Mapper{opts: opts, created: time.Now(), starts: map[string]*startInfo{}, dropped: map[[2]string]int64{}}
 }
 
+// machineID returns the host's machine ID, or "" if it cannot be read.
 func machineID() string {
 	for _, p := range []string{"/etc/machine-id", "/var/lib/dbus/machine-id"} {
 		if b, err := os.ReadFile(p); err == nil {
@@ -203,7 +204,10 @@ func machineID() string {
 	return ""
 }
 
-func str(k, v string) Attribute       { return Attribute{Key: k, Str: v} }
+// str returns a string attribute.
+func str(k, v string) Attribute { return Attribute{Key: k, Str: v} }
+
+// num returns an integer attribute.
 func num(k string, v int64) Attribute { return Attribute{Key: k, Int: v, IsInt: true} }
 
 // hostAttributes are on every resource.
@@ -246,6 +250,8 @@ func (m *Mapper) ResourceAttributes(src *scrape.Source) []Attribute {
 	return attrs
 }
 
+// serviceName returns the service.name for a source: the configured override,
+// else one derived from its unit, else the unit or source name.
 func (m *Mapper) serviceName(source, unit string) string {
 	if s, ok := m.opts.ServiceNames[source]; ok {
 		return s
@@ -300,6 +306,8 @@ func (m *Mapper) Map(res *scrape.Result) Batch {
 	return b
 }
 
+// family maps one scrape family to a metric, with counters as cumulative sums
+// and everything else as gauges.
 func (m *Mapper) family(src *scrape.Source, f *scrape.Family, now time.Time) Metric {
 	name, unit := f.Name, ""
 	if m.opts.Naming == NamingOTel {
@@ -331,6 +339,8 @@ func (m *Mapper) family(src *scrape.Source, f *scrape.Family, now time.Time) Met
 	return out
 }
 
+// pointAttributes returns the attributes of one value: its fields, its object,
+// and for string families the string itself.
 func pointAttributes(v *scrape.Metric, t scrape.Type) []Attribute {
 	attrs := make([]Attribute, 0, len(v.Fields)+2)
 	keys := make([]string, 0, len(v.Fields))
@@ -380,6 +390,8 @@ func (m *Mapper) start(src *scrape.Source, family string, p Point, now time.Time
 	return s.start
 }
 
+// self returns the resource holding the exporter's own metrics about the
+// scrape in res.
 func (m *Mapper) self(res *scrape.Result, now time.Time) Resource {
 	r := Resource{Attributes: append(m.hostAttributes(), str(AttrServiceName, "sdmetrics"))}
 	var failed int64
@@ -433,6 +445,7 @@ func (m *Mapper) self(res *scrape.Result, now time.Time) Resource {
 	return r
 }
 
+// unitProblem returns the reason code for why a source's unit was not resolved.
 func unitProblem(src *scrape.Source) string {
 	err := src.UnitErr
 	switch {

@@ -32,6 +32,8 @@ func Labels(names ...string) MetricOption {
 	return func(c *metricConfig) { c.labels = append(c.labels, names...) }
 }
 
+// newFamily applies opts and registers a family called name, panicking on an
+// invalid or duplicate metric or label name.
 func (p *Provider) newFamily(name string, t Type, opts []MetricOption) *family {
 	var cfg metricConfig
 	for _, opt := range opts {
@@ -78,6 +80,7 @@ type series struct {
 	used   atomic.Bool // the root series is published once written
 }
 
+// seriesHash hashes an object and label values into a series index key.
 func seriesHash(object string, values []string) uint64 {
 	// FNV-1a with a separator after each part, so ("ab","") and ("a","b")
 	// differ.
@@ -173,10 +176,12 @@ func (f *family) visible(s *series) bool {
 	return (s == f.root && len(f.labels) == 0) || s.used.Load()
 }
 
+// describe emits the family's description.
 func (f *family) describe(_ context.Context, emit func(metrics.DescribeOut) error) error {
 	return emit(metrics.DescribeOut{Name: f.name, Description: f.help, Type: metrics.MetricFamilyType(f.typ)})
 }
 
+// list emits every visible series of the family.
 func (f *family) list(_ context.Context, emit func(metrics.ListOut) error) error {
 	send := func(s *series) error {
 		var v json.RawMessage
@@ -360,10 +365,12 @@ type funcFamily struct {
 	read       func() any
 }
 
+// describe emits the metric's description.
 func (f *funcFamily) describe(_ context.Context, emit func(metrics.DescribeOut) error) error {
 	return emit(metrics.DescribeOut{Name: f.name, Description: f.help, Type: metrics.MetricFamilyType(f.typ)})
 }
 
+// list emits the metric's current value, or nothing if it cannot be encoded.
 func (f *funcFamily) list(_ context.Context, emit func(metrics.ListOut) error) error {
 	v, ok := encodeValue(f.typ, f.read())
 	if !ok {
@@ -372,6 +379,8 @@ func (f *funcFamily) list(_ context.Context, emit func(metrics.ListOut) error) e
 	return emit(listOut(f.name, "", nil, v))
 }
 
+// addFunc registers a metric whose value is read from read, panicking if
+// opts declare labels.
 func (p *Provider) addFunc(name string, t Type, read func() any, opts []MetricOption) {
 	var cfg metricConfig
 	for _, opt := range opts {

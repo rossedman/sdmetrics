@@ -10,8 +10,11 @@ package names
 
 import "strings"
 
+// isLetter reports whether c is an ASCII letter.
 func isLetter(c byte) bool { return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' }
-func isDigit(c byte) bool  { return c >= '0' && c <= '9' }
+
+// isDigit reports whether c is an ASCII digit.
+func isDigit(c byte) bool { return c >= '0' && c <= '9' }
 
 // ValidSource reports whether s is a valid Varlink interface name: dot
 // separated, non-empty labels of letters, digits and single inner dashes,

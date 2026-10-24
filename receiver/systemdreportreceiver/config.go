@@ -68,6 +68,7 @@ func (c *Config) Validate() error {
 	return errors.Join(errs...)
 }
 
+// naming returns the otelmap naming mode the Naming setting selects.
 func (c *Config) naming() (otelmap.Naming, error) {
 	switch c.Naming {
 	case "", "raw":

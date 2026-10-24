@@ -26,6 +26,7 @@ func ToSDK(b Batch, scopeVersion string) []*metricdata.ResourceMetrics {
 	return out
 }
 
+// sdkAttrs converts attributes to OpenTelemetry SDK key-values.
 func sdkAttrs(attrs []Attribute) []attribute.KeyValue {
 	kvs := make([]attribute.KeyValue, len(attrs))
 	for i, a := range attrs {
@@ -49,6 +50,8 @@ func allInt(ps []Point) bool {
 	return true
 }
 
+// sdkMetric converts m to SDK metric data, using int64 points when every
+// point is an integer and float64 otherwise.
 func sdkMetric(m Metric) metricdata.Metrics {
 	out := metricdata.Metrics{Name: m.Name, Description: m.Description, Unit: m.Unit}
 	if allInt(m.Points) {

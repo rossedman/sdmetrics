@@ -27,6 +27,8 @@ import (
 	"github.com/rossedman/sdmetrics/provider/prombridge"
 )
 
+// main bridges an existing Prometheus registry to a systemd report socket and
+// serves the same registry over HTTP.
 func main() {
 	dir := flag.String("dir", provider.DefaultDir, "report directory")
 	addr := flag.String("listen", "127.0.0.1:8080", "HTTP address")

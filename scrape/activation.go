@@ -56,6 +56,9 @@ type unitListReply struct {
 	} `json:"context"`
 }
 
+// lookup returns the owner of the first of paths in the socket index. It
+// fetches the index from the manager socket when it is missing or stale, and
+// returns the fetch error if that fails.
 func (x *socketIndex) lookup(ctx context.Context, manager string, timeout time.Duration, paths ...string) (socketOwner, bool, error) {
 	x.mu.Lock()
 	defer x.mu.Unlock()
@@ -88,6 +91,8 @@ func (x *socketIndex) lookup(ctx context.Context, manager string, timeout time.D
 	return o, ok, nil
 }
 
+// fetchSocketIndex asks the service manager for its socket units and maps
+// each listen address to the unit that owns it.
 func fetchSocketIndex(ctx context.Context, manager string, timeout time.Duration) (map[string]socketOwner, error) {
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()

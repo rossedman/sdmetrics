@@ -37,13 +37,17 @@ var (
 	date    = ""
 )
 
+// main runs the exporter with the process arguments and exits with its status.
 func main() {
 	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
 }
 
 type listFlag []string
 
+// String returns the values joined by commas, as flag.Value requires.
 func (l *listFlag) String() string { return strings.Join(*l, ",") }
+
+// Set appends the comma-separated, trimmed, non-empty items of v.
 func (l *listFlag) Set(v string) error {
 	for _, p := range strings.Split(v, ",") {
 		if p = strings.TrimSpace(p); p != "" {
@@ -53,6 +57,8 @@ func (l *listFlag) Set(v string) error {
 	return nil
 }
 
+// run parses args, builds the exporter and runs it until interrupted or, with -once,
+// prints a single scrape. It returns the process exit status.
 func run(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("sdmetrics-exporter", flag.ContinueOnError)
 	fs.SetOutput(stderr)
@@ -190,6 +196,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
+// newLogger returns a slog logger writing to w in the given level and format
+// (text or json).
 func newLogger(w io.Writer, level, format string) (*slog.Logger, error) {
 	var l slog.Level
 	if err := l.UnmarshalText([]byte(level)); err != nil {
@@ -205,6 +213,8 @@ func newLogger(w io.Writer, level, format string) (*slog.Logger, error) {
 	return nil, fmt.Errorf("log.format %q: want text or json", format)
 }
 
+// versionString describes the build: the GoReleaser values when set, else the
+// module version and VCS revision from the build info.
 func versionString() string {
 	v, c, d := version, commit, date
 	if v == "" {

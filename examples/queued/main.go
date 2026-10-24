@@ -30,6 +30,8 @@ import (
 	"github.com/rossedman/sdmetrics/provider"
 )
 
+// main runs a worker queue that publishes its depth, throughput and worker
+// state as systemd metrics, socket-activated when started by queued.socket.
 func main() {
 	dir := flag.String("dir", provider.DefaultDir, "report directory, when not socket-activated")
 	workers := flag.Int("workers", 3, "worker goroutines")

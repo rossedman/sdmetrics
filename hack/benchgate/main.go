@@ -19,8 +19,11 @@ import (
 	"strings"
 )
 
+// main runs benchgate with the process arguments and exits with its status.
 func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
 
+// run compares two benchmark outputs named in args and returns the exit status:
+// 0 if no benchmark slowed beyond the threshold, 1 if one did, 2 on bad input.
 func run(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("benchgate", flag.ContinueOnError)
 	fs.SetOutput(stderr)
@@ -50,6 +53,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
+// parseFile reads the benchmark output in the named file.
 func parseFile(name string) (map[string][]float64, error) {
 	f, err := os.Open(name)
 	if err != nil {
@@ -87,6 +91,7 @@ func parse(r io.Reader) (map[string][]float64, error) {
 	return out, sc.Err()
 }
 
+// median returns the median of xs without modifying it.
 func median(xs []float64) float64 {
 	s := append([]float64(nil), xs...)
 	sort.Float64s(s)
@@ -97,6 +102,8 @@ func median(xs []float64) float64 {
 	return (s[n/2-1] + s[n/2]) / 2
 }
 
+// compare builds a table of head against base medians and reports whether any
+// benchmark slowed by more than threshold percent.
 func compare(base, head map[string][]float64, threshold float64) (string, bool) {
 	names := make([]string, 0, len(head))
 	for n := range head {

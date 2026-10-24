@@ -146,6 +146,7 @@ func (c *Config) Validate() error {
 	return errors.Join(errs...)
 }
 
+// naming returns the otelmap naming mode the Naming setting selects.
 func (c *Config) naming() (otelmap.Naming, error) {
 	switch c.Naming {
 	case "", "raw":
@@ -174,6 +175,8 @@ func (c *Config) ScrapeOptions() scrape.Options {
 	}
 }
 
+// mapperOptions returns the otelmap options the configuration describes, with
+// version as the instrumentation scope version.
 func (c *Config) mapperOptions(version string) otelmap.Options {
 	n, _ := c.naming()
 	return otelmap.Options{Naming: n, Resource: c.Resource, ServiceNames: c.ServiceNames, Units: c.Units, ScopeVersion: version}

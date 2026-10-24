@@ -23,6 +23,7 @@ func NewFactory() receiver.Factory {
 	)
 }
 
+// createDefaultConfig returns the receiver's default configuration.
 func createDefaultConfig() component.Config {
 	cc := scraperhelper.NewDefaultControllerConfig()
 	cc.CollectionInterval = 30 * time.Second
@@ -36,6 +37,8 @@ func createDefaultConfig() component.Config {
 	}
 }
 
+// createMetricsReceiver builds a metrics receiver that scrapes on the
+// configured collection interval and sends the result to next.
 func createMetricsReceiver(_ context.Context, set receiver.Settings, cfg component.Config, next consumer.Metrics) (receiver.Metrics, error) {
 	c := cfg.(*Config)
 	s := newReportScraper(c, set)

@@ -25,6 +25,8 @@ type promCollector struct {
 	batch  atomic.Pointer[otelmap.Batch]
 }
 
+// newPromCollector returns a collector that names metrics per naming and
+// copies the configured resource attributes onto every sample as labels.
 func newPromCollector(naming otelmap.Naming, resource map[string]string) *promCollector {
 	extra := map[string]bool{}
 	for k := range resource {
@@ -33,6 +35,7 @@ func newPromCollector(naming otelmap.Naming, resource map[string]string) *promCo
 	return &promCollector{naming: naming, extra: extra}
 }
 
+// set replaces the batch served to Prometheus.
 func (c *promCollector) set(b otelmap.Batch) { c.batch.Store(&b) }
 
 // Describe sends nothing: the metrics change with what sources report, so
