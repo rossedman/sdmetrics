@@ -2,7 +2,7 @@ module github.com/rossedman/sdmetrics
 
 go 1.26.0
 
-require github.com/rossedman/sdvarlink v0.2.0
+require github.com/rossedman/sdvarlink v0.3.1
 
 require (
 	github.com/prometheus/client_golang v1.25.0
@@ -15,7 +15,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.47.0
 	go.opentelemetry.io/proto/otlp v1.11.1
 	go.yaml.in/yaml/v3 v3.0.5
-	golang.org/x/sys v0.48.0
+	golang.org/x/sys v0.49.0
 	google.golang.org/grpc v1.84.0
 	google.golang.org/protobuf v1.36.12
 )
